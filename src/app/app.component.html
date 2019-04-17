@@ -1,14 +1,31 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
+<div style="text-align:center;">
   <h1>
     Welcome to {{ title }}!
   </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-  <br>
-  <div *ngFor="let message of messages">
-    {{message}}
+  <!-- <div style=" display: flex; justify-content: center">
+    <mat-card style="width: 90%; max-width: 600px"></mat-card>
   </div>
   <br>
-  <input [(ngModel)]="message" (keydown.enter)="sendMessage()" />
-  <button (click)="sendMessage()">Send</button>
+  <br> -->
+</div>
+<div style="width: 100%; display: flex; justify-content: center">
+  <mat-card class="example-card">
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image"></div>
+      <mat-card-title>Global Chat</mat-card-title>
+      <mat-card-subtitle>@global</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content #chats>
+      <div class="message left" *ngFor="let message of messages">
+        <mat-card>{{message}}</mat-card>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <mat-form-field class="messenger">
+          <input matInput [(ngModel)]="message" (keydown.enter)="sendMessage()">
+      </mat-form-field>        
+      <button mat-mini-fab color="primary" (click)="sendMessage()"><mat-icon aria-label="Send">send</mat-icon></button>
+    </mat-card-actions>
+  </mat-card>
 </div>
