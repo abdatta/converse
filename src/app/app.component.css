@@ -5,7 +5,7 @@
   }
   
 .example-header-image {
-    background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+    background-image: url('/assets/global_chat.png');
     background-size: cover;
   }
 
@@ -28,6 +28,10 @@
     margin: 0 !important;
     padding: 15px;
     padding-bottom: 5px;
+}
+
+:host/deep/ .mat-card-header-text {
+    flex-grow: 1;
 }
 
 .mat-card-content{ 

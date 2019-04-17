@@ -78,4 +78,12 @@ export class AppComponent implements OnInit {
     this.chatService.sendMessage(this.message, this.username, this.user_id);
     this.message = '';
   }
+
+  logout() {
+    this.cookieService.delete('username');
+    this.cookieService.delete('user_id');
+    this.username = '';
+    this.user_id = '';
+    this.login();
+  }
 }

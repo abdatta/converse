@@ -9,6 +9,9 @@
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title>Global Chat</mat-card-title>
       <mat-card-subtitle>You are logged in as <b>{{username}}</b></mat-card-subtitle>
+      <button mat-icon-button>
+          <mat-icon aria-label="logout" matTooltip="Logout" (click)="logout()">exit_to_app</mat-icon>
+      </button>
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
       <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">
@@ -19,7 +22,7 @@
       <mat-form-field class="messenger">
           <input matInput [(ngModel)]="message" #msg (keydown.enter)="sendMessage()">
       </mat-form-field>        
-      <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send">send</mat-icon></button>
+      <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
     </mat-card-actions>
   </mat-card>
 </div>
