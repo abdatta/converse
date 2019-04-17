@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ChatService } from './services/chat.service';
 import { MatDialog } from '@angular/material';
 import { CookieService } from 'ngx-cookie-service';
+import { Howl, Howler } from 'howler';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 
@@ -16,12 +17,16 @@ export class AppComponent implements OnInit {
   user_id: string;
   message: string;
   messages: Message[] = [];
+  alert: Howl;
   @ViewChild('chats') chatContainer: ElementRef;
   @ViewChild('msg') messageContainer: ElementRef;
 
   constructor(private chatService: ChatService,
               private cookieService: CookieService,
               public dialog: MatDialog) {
+    this.alert = new Howl({
+      src: ['/assets/sound.mp3']
+    });
     if (!(this.cookieService.check('username') && this.cookieService.check('user_id'))) {
       this.login();
     } else {
@@ -44,6 +49,9 @@ export class AppComponent implements OnInit {
       .getMessages()
       .subscribe((message: Message) => {
         this.messages.push(message);
+        if (message.user_id !== this.user_id) {
+          this.alert.play();
+        }
         setTimeout(() =>
           this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
           10);
