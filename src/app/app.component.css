@@ -54,6 +54,11 @@
     padding: 5px 10px;
     justify-content: flex-end;
 }
+
+.message>.mat-card {
+    max-width: 80%;
+}
+
 .message.right>.mat-card {
     background-color: #69f0ae;
     color: black;
@@ -69,6 +74,14 @@
 
 :host/deep/ .mat-form-field.mat-focused .mat-form-field-ripple {
     background-color: #69f0ae !important;
+}
+
+:host/deep/ .mat-form-field.mat-focused .mat-form-field-label {
+    color: #69f0ae !important;
+}
+
+:host/deep/ .mat-form-field .mat-form-field-label {
+    color: #69f0ae !important;
 }
 
 .messenger {

@@ -8,7 +8,7 @@
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title>Global Chat</mat-card-title>
-      <mat-card-subtitle>You are logged in as <b>{{username}}</b></mat-card-subtitle>
+      <mat-card-subtitle *ngIf="username">You are logged in as <b>{{username}}</b></mat-card-subtitle>
       <button mat-icon-button>
           <mat-icon aria-label="logout" matTooltip="Logout" (click)="logout()">exit_to_app</mat-icon>
       </button>
@@ -19,8 +19,8 @@
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <mat-form-field class="messenger">
-          <input matInput [(ngModel)]="message" #msg (keydown.enter)="sendMessage()">
+      <mat-form-field class="messenger" floatLabel="always">
+          <input matInput [placeholder]="typers" [(ngModel)]="message" #msg (keydown)="sendTyping($event)" (keydown.enter)="sendMessage()">
       </mat-form-field>        
       <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
     </mat-card-actions>

@@ -33,4 +33,16 @@ export class ChatService {
         });
     });
   }
+
+  public sendTyping(username: string) {
+    this.socket.emit('typing', username);
+  }
+
+  public getTypers() {
+    return Observable.create((observer) => {
+        this.socket.on('typing', (typers) => {
+            observer.next(typers);
+        });
+    });
+  }
 }

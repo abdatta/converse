@@ -18,6 +18,8 @@ export class AppComponent implements OnInit {
   message: string;
   messages: Message[] = [];
   alert: Howl;
+  typing: boolean;
+  typers = '';
   @ViewChild('chats') chatContainer: ElementRef;
   @ViewChild('msg') messageContainer: ElementRef;
 
@@ -56,6 +58,20 @@ export class AppComponent implements OnInit {
           this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
           10);
       });
+    this.chatService
+      .getTypers()
+      .subscribe((typers: string[]) => {
+        if (typers.includes(this.username)) {
+          typers.splice(typers.indexOf(this.username), 1);
+        }
+        if (typers.length === 0) {
+          this.typers = '';
+        } else if (typers.length === 1) {
+          this.typers = typers[0] + ' is typing...';
+        } else {
+          this.typers = typers.join(', ') + ' are typing...';
+        }
+      });
   }
 
   isLoggedIn() {
@@ -75,6 +91,16 @@ export class AppComponent implements OnInit {
       this.cookieService.set('user_id', this.user_id, 10);
       this.messageContainer.nativeElement.focus();
     });
+  }
+
+  sendTyping(event) {
+    if (event.key === 'Enter') {
+      this.typing = false;
+    } else if (!this.typing) {
+      this.typing = true;
+      this.chatService.sendTyping(this.username);
+      setTimeout(() => this.typing = false, 1000);
+    }
   }
 
   sendMessage() {
