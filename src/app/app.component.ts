@@ -8,6 +8,12 @@ import { ChatService } from './services/chat.service';
 })
 export class AppComponent {
   title = 'converse';
+  message: string;
 
-  constructor(chatService: ChatService) {}
+  constructor(private chatService: ChatService) {}
+
+  sendMessage() {
+    this.chatService.sendMessage(this.message);
+    this.message = '';
+  }
 }

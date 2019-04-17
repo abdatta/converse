@@ -12,4 +12,8 @@ export class ChatService {
   constructor() {
       this.socket = io(this.url);
   }
+
+  public sendMessage(message: string) {
+    this.socket.emit('new-message', message);
+  }
 }
