@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ChatService } from './services/chat.service';
 import { MatDialog } from '@angular/material';
+import { CookieService } from 'ngx-cookie-service';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 
@@ -19,12 +20,21 @@ export class AppComponent implements OnInit {
   @ViewChild('msg') messageContainer: ElementRef;
 
   constructor(private chatService: ChatService,
+              private cookieService: CookieService,
               public dialog: MatDialog) {
-    if (!this.isLoggedIn()) {
+    if (!(this.cookieService.check('username') && this.cookieService.check('user_id'))) {
       this.login();
+    } else {
+      this.username = this.cookieService.get('username');
+      this.user_id = this.cookieService.get('user_id');
     }
     this.chatService.old_messages
-        .then(messages => this.messages.unshift(...messages));
+        .then(messages => {
+          this.messages.unshift(...messages);
+          setTimeout(() =>
+            this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
+            10);
+        });
   }
 
   ngOnInit() {
@@ -51,6 +61,8 @@ export class AppComponent implements OnInit {
     dialogRef.afterClosed().subscribe(username => {
       this.username = username;
       this.user_id = '#' + Math.ceil(Math.random() * 100000);
+      this.cookieService.set( 'username', this.username, 604800000);
+      this.cookieService.set( 'user_id', this.user_id, 604800000);
       this.messageContainer.nativeElement.focus();
     });
   }

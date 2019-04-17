@@ -8,7 +8,7 @@
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title>Global Chat</mat-card-title>
-      <mat-card-subtitle>@global</mat-card-subtitle>
+      <mat-card-subtitle>You are logged in as <b>{{username}}</b></mat-card-subtitle>
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
       <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">

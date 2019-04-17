@@ -10,6 +10,7 @@ import {
     MatDialogModule
   } from '@angular/material';
 
+import { CookieService } from 'ngx-cookie-service';
 import { AppComponent } from './app.component';
 import { ChatService } from './services/chat.service';
 import { LoginComponent } from './login/login.component';
@@ -29,7 +30,7 @@ import { LoginComponent } from './login/login.component';
     MatIconModule,
     MatDialogModule
   ],
-  providers: [ChatService],
+  providers: [ChatService, CookieService],
   entryComponents: [LoginComponent],
   bootstrap: [AppComponent]
 })
