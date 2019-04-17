@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -12,6 +12,7 @@ import {
   } from '@angular/material';
 
 import { CookieService } from 'ngx-cookie-service';
+import { AngularPageVisibilityModule } from 'angular-page-visibility';
 import { AppComponent } from './app.component';
 import { ChatService } from './services/chat.service';
 import { LoginComponent } from './login/login.component';
@@ -25,6 +26,7 @@ import { LoginComponent } from './login/login.component';
     BrowserModule,
     FormsModule,
     BrowserAnimationsModule,
+    AngularPageVisibilityModule,
     MatCardModule,
     MatButtonModule,
     MatInputModule,
@@ -32,7 +34,7 @@ import { LoginComponent } from './login/login.component';
     MatDialogModule,
     MatTooltipModule
   ],
-  providers: [ChatService, CookieService],
+  providers: [Title, ChatService, CookieService],
   entryComponents: [LoginComponent],
   bootstrap: [AppComponent]
 })

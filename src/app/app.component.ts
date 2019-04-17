@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ChatService } from './services/chat.service';
 import { MatDialog } from '@angular/material';
 import { CookieService } from 'ngx-cookie-service';
-import { Howl, Howler } from 'howler';
+import { OnPageVisibilityChange, AngularPageVisibilityStateEnum } from 'angular-page-visibility';
+import { Howl } from 'howler';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 
@@ -23,7 +25,11 @@ export class AppComponent implements OnInit {
   @ViewChild('chats') chatContainer: ElementRef;
   @ViewChild('msg') messageContainer: ElementRef;
 
+  seeing = true;
+  unread = 0;
+
   constructor(private chatService: ChatService,
+              private titleService: Title,
               private cookieService: CookieService,
               public dialog: MatDialog) {
     this.alert = new Howl({
@@ -54,6 +60,10 @@ export class AppComponent implements OnInit {
         if (message.user_id !== this.user_id) {
           this.alert.play();
         }
+        if (!this.seeing) {
+          this.unread++;
+          this.titleService.setTitle(`(${this.unread}) Converse`);
+        }
         setTimeout(() =>
           this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
           10);
@@ -73,6 +83,17 @@ export class AppComponent implements OnInit {
         }
       });
   }
+
+  @OnPageVisibilityChange()
+  logWhenPageVisibilityChange(visibilityState: AngularPageVisibilityStateEnum ) {
+       this.seeing = (AngularPageVisibilityStateEnum[visibilityState]
+        === AngularPageVisibilityStateEnum[AngularPageVisibilityStateEnum.VISIBLE]);
+      if (this.seeing) {
+        this.unread = 0;
+        this.titleService.setTitle(`Converse`);
+      }
+  }
+
 
   isLoggedIn() {
     return (this.username && this.user_id);
