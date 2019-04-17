@@ -1,0 +1,16 @@
+{
+  "name": "converse-server",
+  "version": "1.0.0",
+  "description": "Backend to the converse app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Abhishek Datta",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  }
+}
