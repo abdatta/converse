@@ -2,14 +2,22 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatCardModule, MatButtonModule, MatInputModule, MatIconModule } from '@angular/material';
+import {
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatIconModule,
+    MatDialogModule
+  } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { ChatService } from './services/chat.service';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -18,9 +26,11 @@ import { ChatService } from './services/chat.service';
     MatCardModule,
     MatButtonModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogModule
   ],
   providers: [ChatService],
+  entryComponents: [LoginComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

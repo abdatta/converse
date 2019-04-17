@@ -1,0 +1,9 @@
+<div style="text-align: center">
+  <h3>Enter a Username to display: </h3>
+</div>
+<div style="display: flex; flex-flow: column; align-items: center;">
+  <mat-form-field style="text-align: center">
+    <input matInput [(ngModel)]="username" (keydown.enter)="login()">
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="login()">Create</button>
+</div>

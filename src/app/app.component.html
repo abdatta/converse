@@ -1,13 +1,7 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center;">
   <h1>
     Welcome to {{ title }}!
   </h1>
-  <!-- <div style=" display: flex; justify-content: center">
-    <mat-card style="width: 90%; max-width: 600px"></mat-card>
-  </div>
-  <br>
-  <br> -->
 </div>
 <div style="width: 100%; display: flex; justify-content: center">
   <mat-card class="example-card">
@@ -16,14 +10,14 @@
       <mat-card-title>Global Chat</mat-card-title>
       <mat-card-subtitle>@global</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content #chats>
+    <mat-card-content #chats [class.blur]="!isLoggedIn()">
       <div class="message left" *ngFor="let message of messages">
-        <mat-card>{{message}}</mat-card>
+        <mat-card><b>{{username}}: </b>{{message}}</mat-card>
       </div>
     </mat-card-content>
     <mat-card-actions>
       <mat-form-field class="messenger">
-          <input matInput [(ngModel)]="message" (keydown.enter)="sendMessage()">
+          <input matInput [(ngModel)]="message" #msg (keydown.enter)="sendMessage()">
       </mat-form-field>        
       <button mat-mini-fab color="primary" (click)="sendMessage()"><mat-icon aria-label="Send">send</mat-icon></button>
     </mat-card-actions>

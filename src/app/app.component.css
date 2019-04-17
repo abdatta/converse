@@ -37,6 +37,10 @@
     overflow-y: auto;
 }
 
+.mat-card-content.blur {
+    filter: blur(5px);
+}
+
 .mat-card-content::-webkit-scrollbar {
     width: 0 !important
 }
