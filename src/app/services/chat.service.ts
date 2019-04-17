@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Message } from '../models/message.model';
 
@@ -8,7 +9,7 @@ import { Message } from '../models/message.model';
 })
 export class ChatService {
 
-  private url = 'http://localhost:3000';
+  private url = environment.server_url;
   private socket;
   public old_messages: Promise<Message[]>;
 

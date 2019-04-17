@@ -27,6 +27,8 @@ export class AppComponent implements OnInit {
     } else {
       this.username = this.cookieService.get('username');
       this.user_id = this.cookieService.get('user_id');
+      this.cookieService.set('username', this.username, 10);
+      this.cookieService.set('user_id', this.user_id, 10);
     }
     this.chatService.old_messages
         .then(messages => {
@@ -61,8 +63,8 @@ export class AppComponent implements OnInit {
     dialogRef.afterClosed().subscribe(username => {
       this.username = username;
       this.user_id = '#' + Math.ceil(Math.random() * 100000);
-      this.cookieService.set( 'username', this.username, 604800000);
-      this.cookieService.set( 'user_id', this.user_id, 604800000);
+      this.cookieService.set('username', this.username, 10);
+      this.cookieService.set('user_id', this.user_id, 10);
       this.messageContainer.nativeElement.focus();
     });
   }
