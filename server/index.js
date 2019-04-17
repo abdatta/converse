@@ -9,12 +9,14 @@ let io = socketIO(server);
 
 const port = process.env.PORT || 3000;
 
-io.on('connection', (socket) => {
-    console.log('user connected');
+let messages = [];
 
+io.on('connection', (socket) => {
+    console.log('New User Connected.');
+    io.emit('old-messages', messages);
     socket.on('new-message', (message) => {
         io.emit('new-message', message);
-        console.log(message);
+        messages.push(message);
     });
 });
 

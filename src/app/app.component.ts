@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ChatService } from './services/chat.service';
 import { MatDialog } from '@angular/material';
 import { LoginComponent } from './login/login.component';
+import { Message } from './models/message.model';
 
 @Component({
   selector: 'app-root',
@@ -9,24 +10,27 @@ import { LoginComponent } from './login/login.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'converse';
+  title = 'Converse';
   username: string;
   user_id: string;
   message: string;
-  messages: string[] = [];
+  messages: Message[] = [];
   @ViewChild('chats') chatContainer: ElementRef;
   @ViewChild('msg') messageContainer: ElementRef;
 
   constructor(private chatService: ChatService,
-              public dialog: MatDialog) {}
-
-  ngOnInit() {
+              public dialog: MatDialog) {
     if (!this.isLoggedIn()) {
       this.login();
     }
+    this.chatService.old_messages
+        .then(messages => this.messages.unshift(...messages));
+  }
+
+  ngOnInit() {
     this.chatService
       .getMessages()
-      .subscribe((message: string) => {
+      .subscribe((message: Message) => {
         this.messages.push(message);
         setTimeout(() =>
           this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
@@ -59,7 +63,7 @@ export class AppComponent implements OnInit {
     if (this.message.trim() === '') {
       return;
     }
-    this.chatService.sendMessage(this.message);
+    this.chatService.sendMessage(this.message, this.username, this.user_id);
     this.message = '';
   }
 }

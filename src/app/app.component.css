@@ -48,17 +48,33 @@
 .message {
     display: flex;
     padding: 5px 10px;
+    justify-content: flex-end;
 }
+.message.right>.mat-card {
+    background-color: #69f0ae;
+    color: black;
+}
+
 .message.left {
-    justify-content: start;
+    justify-content: flex-start;
 }
 .message.left>.mat-card {
     background-color: #7b1fa2;
+    color: white;
+}
+
+:host/deep/ .mat-form-field.mat-focused .mat-form-field-ripple {
+    background-color: #69f0ae !important;
 }
 
 .messenger {
-    width: 100%;
+    width: 100%;;
 }
+
+.messenger input {
+    caret-color: #69f0ae !important
+}
+
 .mat-mini-fab {
     margin: 5px 0 0 10px;
 }
