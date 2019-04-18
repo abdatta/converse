@@ -9,7 +9,16 @@ let io = socketIO(server);
 
 const port = process.env.PORT || 3600;
 
-let messages = [];
+let fs = require('fs');
+let store = fs.createWriteStream('store.db',  {flags:'a'});
+
+const init_msg = JSON.stringify({
+    message: 'Hi! This is a global chat forum. I\'m your host Yakubo. Please enjoy chatting here.',
+    username: 'Yakubo',
+    user_id: '#00001'
+});
+
+let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
 let typers = [];
 let typeTimeouts = {};
 
@@ -20,6 +29,7 @@ io.on('connection', (socket) => {
     io.emit('typing', typers);
 
     socket.on('new-message', (message) => {
+        store.write(',\n' + JSON.stringify(message));
         io.emit('new-message', message);
         messages.push(message);
         const i = typers.indexOf(message.username);
@@ -46,10 +56,10 @@ io.on('connection', (socket) => {
         const i = typers.indexOf(typer);
         if (i === -1) {
             typers.push(typer);
-            typeTimeouts[typer] = setTimeout(to(typer), 2000);
+            typeTimeouts[typer] = setTimeout(to(typer), 3000);
         } else {
             clearTimeout(typeTimeouts[typer]);
-            typeTimeouts[typer] = setTimeout(to(typer), 2000);
+            typeTimeouts[typer] = setTimeout(to(typer), 3000);
         }
         io.emit('typing', typers);
     });
