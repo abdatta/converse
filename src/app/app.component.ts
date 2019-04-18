@@ -23,6 +23,8 @@ export class AppComponent implements OnInit {
   alert: Howl;
   typing: boolean;
   typers = '';
+  onlines = '';
+  onlineNotifier;
   @ViewChild('chats') chatContainer: ElementRef;
   @ViewChild('msg') messageContainer: ElementRef;
 
@@ -41,6 +43,7 @@ export class AppComponent implements OnInit {
     } else {
       this.username = this.cookieService.get('username');
       this.user_id = this.cookieService.get('user_id');
+      this.onlineNotifier = setInterval(() => this.chatService.sendOnline(this.username), 2000);
       this.cookieService.set('username', this.username, 10);
       this.cookieService.set('user_id', this.user_id, 10);
     }
@@ -69,6 +72,22 @@ export class AppComponent implements OnInit {
           this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
           10);
       });
+
+    this.chatService
+      .getOnline()
+      .subscribe((users: string[]) => {
+        if (users.includes(this.username)) {
+          users.splice(users.indexOf(this.username), 1);
+        }
+        if (users.length === 0) {
+          this.onlines = 'No one is online now';
+        } else if (users.length === 1) {
+          this.onlines = users[0] + ' is online';
+        } else {
+          this.onlines = users.join(', ') + ' are online';
+        }
+      });
+
     this.chatService
       .getTypers()
       .subscribe((typers: string[]) => {
@@ -118,6 +137,7 @@ export class AppComponent implements OnInit {
       this.user_id = '#' + Math.ceil(Math.random() * 100000);
       this.cookieService.set('username', this.username, 10);
       this.cookieService.set('user_id', this.user_id, 10);
+      this.onlineNotifier = setInterval(() => this.chatService.sendOnline(this.username), 2000);
       this.messageContainer.nativeElement.focus();
     });
   }
@@ -149,6 +169,7 @@ export class AppComponent implements OnInit {
     this.cookieService.delete('user_id');
     this.username = '';
     this.user_id = '';
+    clearInterval(this.onlineNotifier);
     this.login();
   }
 }

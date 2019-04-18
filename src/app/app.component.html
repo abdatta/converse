@@ -8,7 +8,7 @@
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title>Global Chat</mat-card-title>
-      <mat-card-subtitle *ngIf="username">You are logged in as <b>{{username}}</b></mat-card-subtitle>
+      <mat-card-subtitle *ngIf="username">{{onlines}}</mat-card-subtitle>
       <button mat-icon-button>
           <mat-icon aria-label="logout" matTooltip="Logout" (click)="logout()">exit_to_app</mat-icon>
       </button>
@@ -18,7 +18,7 @@
         <mat-card>
           <div class="messager">
             <b>{{message.user_id !== user_id?message.username:'You'}}</b>
-            <span style="float: right; margin-top: -2px;">&emsp;🕒 {{formatDate(message.timestamp)}}</span>
+            <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
           <div>{{message.message}}</div></mat-card>
       </div>

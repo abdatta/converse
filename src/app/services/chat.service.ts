@@ -45,4 +45,16 @@ export class ChatService {
         });
     });
   }
+
+  public sendOnline(username: string) {
+    this.socket.emit('online', username);
+  }
+
+  public getOnline() {
+    return Observable.create((observer) => {
+        this.socket.on('online', (users) => {
+            observer.next(users);
+        });
+    });
+  }
 }

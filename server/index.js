@@ -9,6 +9,9 @@ let io = socketIO(server);
 
 const port = process.env.PORT || 3600;
 
+const logger = console.log;
+console.log = (...logs) => logger('[' + new Date() + ']', ...logs);
+
 let fs = require('fs');
 let store = fs.createWriteStream('store.db',  {flags:'a'});
 
@@ -20,14 +23,16 @@ const init_msg = JSON.stringify({
 });
 
 let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
+let onlines = [];
+let onlineTimeouts = {};
 let typers = [];
 let typeTimeouts = {};
 
 io.on('connection', (socket) => {
-    console.log('[' + new Date() + ']', 'New User Connected.');
+    console.log('New User Connected.');
 
+    // Messages
     io.emit('old-messages', messages);
-    io.emit('typing', typers);
 
     socket.on('new-message', (message) => {
         message.timestamp = Date.now();
@@ -43,6 +48,34 @@ io.on('connection', (socket) => {
             io.emit('typing', typers);
         }
     });
+
+    // Online
+    io.emit('online', onlines);
+
+    const onlineTO = (user) => () => {
+        const i = onlines.indexOf(user);
+        if (i !== -1) {
+            console.log(user + ' went offline.');
+            onlines.splice(i, 1);
+        }
+        io.emit('online', onlines);
+    }
+
+    socket.on('online', (user) => {
+        const i = onlines.indexOf(user);
+        if (i === -1) {
+            console.log(user + ' is online.');
+            onlines.push(user);
+            onlineTimeouts[user] = setTimeout(onlineTO(user), 4000);
+        } else {
+            clearTimeout(onlineTimeouts[user]);
+            onlineTimeouts[user] = setTimeout(onlineTO(user), 4000);
+        }
+        io.emit('online', onlines);
+    });
+
+    // Typing
+    io.emit('typing', typers);
 
     const to = (typer) => () => {
         const i = typers.indexOf(typer);
