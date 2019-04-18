@@ -15,7 +15,8 @@ let store = fs.createWriteStream('store.db',  {flags:'a'});
 const init_msg = JSON.stringify({
     message: 'Hi! This is a global chat forum. I\'m your host Yakubo. Please enjoy chatting here.',
     username: 'Yakubo',
-    user_id: '#00001'
+    user_id: '#00001',
+    timestamp: Date.now()
 });
 
 let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
@@ -29,6 +30,7 @@ io.on('connection', (socket) => {
     io.emit('typing', typers);
 
     socket.on('new-message', (message) => {
+        message.timestamp = Date.now();
         store.write(',\n' + JSON.stringify(message));
         io.emit('new-message', message);
         messages.push(message);

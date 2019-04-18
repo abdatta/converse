@@ -15,12 +15,18 @@
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
       <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">
-        <mat-card><b *ngIf="message.user_id !== user_id">{{message.username}}: </b>{{message.message}}</mat-card>
+        <mat-card>
+          <div class="messager">
+            <b>{{message.user_id !== user_id?message.username:'You'}}</b>
+            <span style="float: right; margin-top: -2px;">&emsp;🕒 {{formatDate(message.timestamp)}}</span>
+          </div>
+          <div>{{message.message}}</div></mat-card>
       </div>
     </mat-card-content>
     <mat-card-actions>
       <mat-form-field class="messenger" floatLabel="always">
-          <input matInput [placeholder]="typers" [(ngModel)]="message" #msg (keydown)="sendTyping($event)" (keydown.enter)="sendMessage()">
+          <mat-label>{{typers}}</mat-label>
+          <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'" [(ngModel)]="message" #msg (keydown)="sendTyping($event)" (keydown.enter)="sendMessage()">
       </mat-form-field>        
       <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
     </mat-card-actions>

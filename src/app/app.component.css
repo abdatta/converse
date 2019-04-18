@@ -49,6 +49,11 @@
     width: 0 !important
 }
 
+.messager {
+    font-size: 0.8em;
+    padding-bottom: 5px;
+}
+
 .message {
     display: flex;
     padding: 5px 10px;

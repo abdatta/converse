@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material';
 import { CookieService } from 'ngx-cookie-service';
 import { OnPageVisibilityChange, AngularPageVisibilityStateEnum } from 'angular-page-visibility';
 import { Howl } from 'howler';
+import * as moment from 'moment';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 
@@ -82,6 +83,13 @@ export class AppComponent implements OnInit {
           this.typers = typers.join(', ') + ' are typing...';
         }
       });
+  }
+
+  formatDate(date: number) {
+    if (moment(date).isSame(moment(), 'D')) {
+      return moment(date).format('HH:mm');
+    }
+    return moment(date).format('DD MMM, HH:mm');
   }
 
   @OnPageVisibilityChange()
