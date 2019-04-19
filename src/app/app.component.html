@@ -21,13 +21,25 @@
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <mat-form-field class="messenger" floatLabel="always">
-          <mat-label>{{typers}}</mat-label>
-          <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'"
-                          [(ngModel)]="message" (ngModelChange)="sendTyping($event)"
-                          (keydown.enter)="sendMessage()" #msg>
-      </mat-form-field>        
-      <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
+      <div class="reply" *ngIf="replying">
+        <mat-card>
+            <div class="messager">
+                <b>Yakubo</b>
+                <span style="float: right;">&emsp;{{formatDate(messages[0].timestamp)}}</span>
+            </div>
+            <div >{{messages[0].message}}</div>
+        </mat-card>
+        <button mat-icon-button (click)="replying=false"><mat-icon aria-label="close" matTooltip="Close">cancel</mat-icon></button>
+      </div>
+      <div class="actions">
+        <mat-form-field class="messenger" floatLabel="always">
+            <mat-label>{{typers}}</mat-label>
+            <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'"
+                            [(ngModel)]="message" (ngModelChange)="sendTyping($event)"
+                            (keydown.enter)="sendMessage()" #msg>
+        </mat-form-field>        
+        <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
+      </div>
     </mat-card-actions>
   </mat-card>
 </div>

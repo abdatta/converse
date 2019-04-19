@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
   @ViewChild('msg') messageContainer: ElementRef;
 
   seeing = true;
+  replying = true;
   unread = 0;
 
   constructor(private chatService: ChatService,
