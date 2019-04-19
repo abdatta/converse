@@ -22,8 +22,9 @@ export class ChatService {
       });
   }
 
-  public sendMessage(message: string, username: string, user_id: string) {
-    this.socket.emit('new-message', { message, username, user_id });
+  public sendMessage(message: string, username: string, user_id: string, reply_to?: Message) {
+    reply_to.reply_to = undefined;
+    this.socket.emit('new-message', { message, username, user_id, reply_to });
   }
 
   public getMessages() {

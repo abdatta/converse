@@ -137,10 +137,10 @@ export class AppComponent implements OnInit {
     if (id === this.user_id) {
       return '#69f0ae'; // bright green accent color
     }
-    if (id.length < 7) {
-      return '#7b1fa2';
+    if (/^#[0-9a-f]{6}/i.test(id)) {
+      return id;
     }
-    return id;
+    return '#7b1fa2';
   }
 
   isLoggedIn() {
@@ -180,12 +180,14 @@ export class AppComponent implements OnInit {
     if (this.message.trim() === '') {
       return;
     }
-    this.chatService.sendMessage(this.message, this.username, this.user_id);
+    this.chatService.sendMessage(this.message, this.username, this.user_id, this.replyingTo);
+    this.replyingTo = undefined;
     this.message = '';
   }
 
-  setReply(message: Message) {
-    this.replyingTo = message;
+  quoteReply(msg: Message) {
+    this.replyingTo = msg;
+    this.messageContainer.nativeElement.focus();
   }
 
   logout() {
