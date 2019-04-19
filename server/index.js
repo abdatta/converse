@@ -23,6 +23,8 @@ const init_msg = JSON.stringify({
 });
 
 let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
+if (messages.length > 300) messages = messages.splice(-300);
+
 let onlines = [];
 let onlineTimeouts = {};
 let typers = [];

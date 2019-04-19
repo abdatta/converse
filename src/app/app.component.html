@@ -9,8 +9,10 @@
       </button>
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
-      <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">
-        <mat-card>
+      <div class="message right"
+           [class.left]="message.user_id !== user_id"
+           *ngFor="let message of messages">
+        <mat-card [style.background-color]="getColor(message.user_id)">
           <div class="messager">
             <b>{{message.user_id !== user_id?message.username:'You'}}</b>
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>

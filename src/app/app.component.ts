@@ -42,6 +42,9 @@ export class AppComponent implements OnInit {
     } else {
       this.username = this.cookieService.get('username');
       this.user_id = this.cookieService.get('user_id');
+      if (this.user_id.length < 7) {
+        this.user_id = this.generateRandomColor();
+      }
       this.cookieService.set('username', this.username, 10);
       this.cookieService.set('user_id', this.user_id, 10);
     }
@@ -112,13 +115,6 @@ export class AppComponent implements OnInit {
       });
   }
 
-  formatDate(date: number) {
-    if (moment(date).isSame(moment(), 'D')) {
-      return moment(date).format('HH:mm:ss');
-    }
-    return moment(date).format('DD MMM, HH:mm:ss');
-  }
-
   @OnPageVisibilityChange()
   logWhenPageVisibilityChange(visibilityState: AngularPageVisibilityStateEnum ) {
        this.seeing = (AngularPageVisibilityStateEnum[visibilityState]
@@ -129,6 +125,22 @@ export class AppComponent implements OnInit {
       }
   }
 
+  formatDate(date: number) {
+    if (moment(date).isSame(moment(), 'D')) {
+      return moment(date).format('HH:mm:ss');
+    }
+    return moment(date).format('DD MMM, HH:mm:ss');
+  }
+
+  getColor(id: string) {
+    if (id === this.user_id) {
+      return '#69f0ae'; // bright green accent color
+    }
+    if (id.length < 7) {
+      return '#7b1fa2';
+    }
+    return id;
+  }
 
   isLoggedIn() {
     return (this.username && this.user_id);
@@ -142,7 +154,7 @@ export class AppComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(username => {
       this.username = username;
-      this.user_id = '#' + Math.ceil(Math.random() * 100000);
+      this.user_id = this.generateRandomColor();
       this.cookieService.set('username', this.username, 10);
       this.cookieService.set('user_id', this.user_id, 10);
       this.messageContainer.nativeElement.focus();
@@ -177,5 +189,42 @@ export class AppComponent implements OnInit {
     this.username = '';
     this.user_id = '';
     this.login();
+  }
+
+  generateRandomColor() {
+    const h = 256 * Math.random(),
+          s = (45 + 30 * Math.random()) / 100,
+          l = (35 + 30 * Math.random()) / 100;
+
+    const c = (1 - Math.abs(2 * l - 1)) * s,
+          x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+          m = l - c / 2;
+
+    let r = 0, g = 0, b = 0;
+
+    if (0 <= h && h < 60) {
+      r = c; g = x; b = 0;
+    } else if (60 <= h && h < 120) {
+      r = x; g = c; b = 0;
+    } else if (120 <= h && h < 180) {
+      r = 0; g = c; b = x;
+    } else if (180 <= h && h < 240) {
+      r = 0; g = x; b = c;
+    } else if (240 <= h && h < 300) {
+      r = x; g = 0; b = c;
+    } else if (300 <= h && h < 360) {
+      r = c; g = 0; b = x;
+    }
+    // Having obtained RGB, convert channels to hex
+    let hr = Math.round((r + m) * 255).toString(16),
+        hg = Math.round((g + m) * 255).toString(16),
+        hb = Math.round((b + m) * 255).toString(16);
+
+    // Prepend 0s, if necessary
+    hr = (hr.length === 1) ? '0' + hr : hr;
+    hg = (hg.length === 1) ? '0' + hg : hg;
+    hb = (hb.length === 1) ? '0' + hb : hb;
+
+    return '#' + hr + hg + hb;
   }
 }
