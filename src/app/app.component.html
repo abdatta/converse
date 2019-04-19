@@ -1,13 +1,8 @@
-<div style="text-align:center;">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-</div>
-<div style="width: 100%; display: flex; justify-content: center">
+<div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
   <mat-card class="example-card">
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>Global Chat</mat-card-title>
+      <mat-card-title>{{ title }}</mat-card-title>
       <mat-card-subtitle *ngIf="username">{{onlines}}</mat-card-subtitle>
       <button mat-icon-button>
           <mat-icon aria-label="logout" matTooltip="Logout" (click)="logout()">exit_to_app</mat-icon>
@@ -17,7 +12,7 @@
       <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">
         <mat-card>
           <div class="messager">
-            <b>{{message.user_id !== user_id?message.username:'You'}}</b> {{message.user_id}}
+            <b>{{message.user_id !== user_id?message.username:'You'}}</b>
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
           <div>{{message.message}}</div></mat-card>

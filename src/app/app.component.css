@@ -1,11 +1,14 @@
 .example-card {
+    display: flex;
+    flex-flow: column;
     max-width: 500px;
-    width: 90%;
+    width: 97%;
+    height: 98%;
     padding: 0;
   }
   
 .example-header-image {
-    background-image: url('/assets/global_chat.png');
+    background-image: url('/assets/logo.png');
     background-size: cover;
   }
 
@@ -15,6 +18,7 @@
     padding: 15px;
     border-radius: 4px 4px 0 0;
     background-color: #7b1fa2;
+    min-height: 45px;
 }
 .mat-card-subtitle {
     margin-bottom: 0;
@@ -28,6 +32,7 @@
     margin: 0 !important;
     padding: 15px;
     padding-bottom: 5px;
+    min-height: 65px;
 }
 
 :host/deep/ .mat-card-header-text {
@@ -37,7 +42,7 @@
 .mat-card-content{ 
     margin-top: 5px;
     margin-bottom: 0;
-    height: 450px;
+    flex-grow: 1;
     overflow-y: auto;
 }
 
