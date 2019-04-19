@@ -8,7 +8,8 @@ import {
     MatInputModule,
     MatIconModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule
   } from '@angular/material';
 
 import { CookieService } from 'ngx-cookie-service';
@@ -32,7 +33,8 @@ import { LoginComponent } from './login/login.component';
     MatInputModule,
     MatIconModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule
   ],
   providers: [Title, ChatService, CookieService],
   entryComponents: [LoginComponent],

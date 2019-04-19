@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
   seeing = true;
   replyingTo: Message;
   unread = 0;
+  show_secs = false;
 
   constructor(private chatService: ChatService,
               private titleService: Title,
@@ -49,6 +50,10 @@ export class AppComponent implements OnInit {
       this.cookieService.set('username', this.username, 10);
       this.cookieService.set('user_id', this.user_id, 10);
     }
+
+    this.show_secs = this.cookieService.get('show_seconds') === 'true';
+    this.cookieService.set('show_seconds', `${this.show_secs}`, 10);
+
     this.chatService.old_messages
         .then(messages => {
           this.messages.unshift(...messages);
@@ -126,11 +131,17 @@ export class AppComponent implements OnInit {
       }
   }
 
+  toggleShowSec() {
+    this.show_secs = !this.show_secs;
+    this.cookieService.set('show_seconds', `${this.show_secs}`, 10);
+  }
+
   formatDate(date: number) {
+    const format = this.show_secs ? 'HH:mm:ss' : 'HH:mm';
     if (moment(date).isSame(moment(), 'D')) {
-      return moment(date).format('HH:mm:ss');
+      return moment(date).format(format);
     }
-    return moment(date).format('DD MMM, HH:mm:ss');
+    return moment(date).format('DD MMM, ' + format);
   }
 
   getColor(id: string) {
