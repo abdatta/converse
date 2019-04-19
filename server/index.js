@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
         messages.push(message);
         const i = typers.indexOf(message.username);
         if (i !== -1) {
-            console.log(message.username + ' stopped typing.');
+            // console.log(message.username + ' stopped typing.');
             typers.splice(i, 1);
             clearTimeout(typeTimeouts[message.username]);
             typeTimeouts[message.username] = undefined;
@@ -80,14 +80,14 @@ io.on('connection', (socket) => {
     const to = (typer) => () => {
         const i = typers.indexOf(typer);
         if (i !== -1) {
-            console.log(typer + ' stopped typing.');
+            // console.log(typer + ' stopped typing.');
             typers.splice(i, 1);
         }
         io.emit('typing', typers);
     }
 
     socket.on('typing', (typer) => {
-        console.log(typer + ' is typing...');
+        // console.log(typer + ' is typing...');
         const i = typers.indexOf(typer);
         if (i === -1) {
             typers.push(typer);

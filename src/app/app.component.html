@@ -17,7 +17,7 @@
       <div class="message right" [class.left]="message.user_id !== user_id" *ngFor="let message of messages">
         <mat-card>
           <div class="messager">
-            <b>{{message.user_id !== user_id?message.username:'You'}}</b>
+            <b>{{message.user_id !== user_id?message.username:'You'}}</b> {{message.user_id}}
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
           <div>{{message.message}}</div></mat-card>
@@ -26,7 +26,9 @@
     <mat-card-actions>
       <mat-form-field class="messenger" floatLabel="always">
           <mat-label>{{typers}}</mat-label>
-          <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'" [(ngModel)]="message" #msg (keydown)="sendTyping($event)" (keydown.enter)="sendMessage()">
+          <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'"
+                          [(ngModel)]="message" (ngModelChange)="sendTyping($event)"
+                          (keydown.enter)="sendMessage()" #msg>
       </mat-form-field>        
       <button mat-mini-fab color="accent" (click)="sendMessage()"><mat-icon aria-label="Send" matTooltip="Send">send</mat-icon></button>
     </mat-card-actions>
