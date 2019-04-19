@@ -63,12 +63,16 @@
 
 .message {
     display: flex;
+    align-items: center;
     padding: 5px 10px;
-    justify-content: flex-end;
 }
 
 .message>.mat-card {
     max-width: 80%;
+}
+
+.message.right {
+    flex-direction: row-reverse;
 }
 
 .message.right>.mat-card {
@@ -78,6 +82,7 @@
 
 .message.left {
     justify-content: flex-start;
+    flex-direction: row;
 }
 .message.left>.mat-card {
     background-color: #7b1fa2;
@@ -94,6 +99,14 @@
 
 :host/deep/ .mat-form-field .mat-form-field-label {
     color: #69f0ae !important;
+}
+
+.reply-button {
+    display: none;
+}
+
+.message:hover .reply-button {
+    display: initial;
 }
 
 .reply {

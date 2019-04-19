@@ -14,22 +14,26 @@
            *ngFor="let message of messages">
         <mat-card [style.background-color]="getColor(message.user_id)">
           <div class="messager">
-            <b>{{message.user_id !== user_id?message.username:'You'}}</b>
+            <b>{{message.user_id !== user_id ? message.username : 'You'}}</b>
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
-          <div>{{message.message}}</div></mat-card>
+          <div>{{message.message}}</div>
+        </mat-card>
+        <button mat-icon-button class="reply-button" (click)="setReply(message)">
+          <mat-icon aria-label="reply" matTooltip="Reply">reply</mat-icon>
+        </button>
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <div class="reply" *ngIf="replying">
+      <div class="reply" *ngIf="replyingTo">
         <mat-card>
             <div class="messager">
-                <b>Yakubo</b>
-                <span style="float: right;">&emsp;{{formatDate(messages[0].timestamp)}}</span>
+                <b>{{replyingTo.user_id !== user_id ? replyingTo.username : 'You'}}</b>
+                <span style="float: right;">&emsp;{{formatDate(replyingTo.timestamp)}}</span>
             </div>
-            <div >{{messages[0].message}}</div>
+            <div >{{replyingTo.message}}</div>
         </mat-card>
-        <button mat-icon-button (click)="replying=false"><mat-icon aria-label="close" matTooltip="Close">cancel</mat-icon></button>
+        <button mat-icon-button (click)="replyingTo=null"><mat-icon aria-label="close" matTooltip="Close">cancel</mat-icon></button>
       </div>
       <div class="actions">
         <mat-form-field class="messenger" floatLabel="always">

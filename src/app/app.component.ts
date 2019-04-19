@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
   @ViewChild('msg') messageContainer: ElementRef;
 
   seeing = true;
-  replying = true;
+  replyingTo: Message;
   unread = 0;
 
   constructor(private chatService: ChatService,
@@ -182,6 +182,10 @@ export class AppComponent implements OnInit {
     }
     this.chatService.sendMessage(this.message, this.username, this.user_id);
     this.message = '';
+  }
+
+  setReply(message: Message) {
+    this.replyingTo = message;
   }
 
   logout() {
