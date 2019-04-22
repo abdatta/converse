@@ -65,6 +65,7 @@
     display: flex;
     align-items: center;
     padding: 5px 10px;
+    word-break: break-word;
 }
 
 .message>.mat-card {
@@ -122,6 +123,7 @@
 .reply {
     display: flex;
     align-items: baseline;
+    word-break: break-word;
 }
 
 .reply > .mat-card {

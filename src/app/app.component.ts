@@ -141,6 +141,9 @@ export class AppComponent implements OnInit {
     if (moment(date).isSame(moment(), 'D')) {
       return moment(date).format(format);
     }
+    if (moment(date).isSame(moment().subtract(1, 'days'), 'D')) {
+      return 'Yesterday, ' + moment(date).format(format);
+    }
     return moment(date).format('DD MMM, ' + format);
   }
 
@@ -190,6 +193,9 @@ export class AppComponent implements OnInit {
     }
     if (this.message.trim() === '') {
       return;
+    }
+    if (this.message.length > 1000) {
+      this.message = this.message.substring(0, 1000);
     }
     this.chatService.sendMessage(this.message, this.username, this.user_id, this.replyingTo);
     this.replyingTo = undefined;

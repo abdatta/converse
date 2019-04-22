@@ -26,7 +26,9 @@
            [class.left]="message.user_id !== user_id"
            *ngFor="let message of messages">
         <mat-card [style.background-color]="getColor(message.user_id)">
-          <mat-card *ngIf="message.reply_to" class="embed-reply" [style.background-color]="getColor(message.reply_to.user_id)">
+          <mat-card *ngIf="message.reply_to" class="embed-reply"
+                    [style.background-color]="getColor(message.reply_to.user_id)"
+                    [style.color]="message.reply_to.user_id === user_id ? 'black' : 'white'">
               <div class="messager">
                   <b>{{message.reply_to.user_id !== user_id ? message.reply_to.username : 'You'}}</b>
                   <span style="float: right;">&emsp;{{formatDate(message.reply_to.timestamp)}}</span>
@@ -62,7 +64,7 @@
             <mat-label>{{typers}}</mat-label>
             <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'"
                             [(ngModel)]="message" (ngModelChange)="sendTyping($event)"
-                            (keydown.enter)="sendMessage()" #msg>
+                            (keydown.enter)="sendMessage()" maxlength="1000" #msg>
         </mat-form-field>        
         <button mat-mini-fab color="accent" (click)="sendMessage()">
           <mat-icon aria-label="Send" matTooltip="Send">send</mat-icon>
