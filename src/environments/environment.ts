@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  upload_preset: 'qh9vam2j',
   server_url: 'http://localhost:3600'
 };
 

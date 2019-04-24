@@ -22,12 +22,12 @@ export class ChatService {
       });
   }
 
-  public sendMessage(message: string, username: string, user_id: string, reply_to?: Message) {
+  public sendMessage(message: string, username: string, user_id: string, reply_to?: Message, image?: string) {
     if (reply_to) {
       reply_to = JSON.parse(JSON.stringify(reply_to));
       reply_to.reply_to = undefined;
     }
-    this.socket.emit('new-message', { message, username, user_id, reply_to });
+    this.socket.emit('new-message', { message, username, user_id, reply_to, image });
   }
 
   public getMessages() {

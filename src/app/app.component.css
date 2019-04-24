@@ -136,6 +136,36 @@
                 0 3px 1px -2px rgba(0, 0, 0, 0.2) inset;
 }
 
+.embed-image {
+    padding: 0px;
+    margin-bottom: 4px;
+    margin-top: 2px;
+}
+
+.embed-image {
+    max-width: 100%;
+    max-height: 40vh;
+    border-radius: 4px;
+}
+
+.attach-image {
+    display: flex;
+}
+
+.attach-image > .mat-card {
+    padding: 6px;
+    margin: 0 -3px 5px;
+    background-color: rgba(255,255,255,0.1);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14) inset, 0 1px 5px 0 rgba(0, 0, 0, 0.12) inset, 0 3px 1px -2px rgba(0, 0, 0, 0.2) inset;
+}
+
+.attach-image > .mat-card > img {
+    max-width: 100%;
+    max-height: 40vh;
+    margin-bottom: -4px;
+    border-radius: 4px;
+}
+
 .messenger {
     width: 100%;;
 }

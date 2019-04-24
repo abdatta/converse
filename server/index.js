@@ -23,7 +23,13 @@ const init_msg = JSON.stringify({
 });
 
 let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
-if (messages.length > 300) messages = messages.splice(-300);
+const msg_limit = 300;
+if (messages.length > msg_limit) messages = messages.splice(-msg_limit);
+const pushMessage = (msg) => {
+    messages.push(msg);
+    if (messages.length > msg_limit)
+        messages.shift();
+}
 
 let onlines = [];
 let onlineTimeouts = {};
@@ -40,7 +46,7 @@ io.on('connection', (socket) => {
         message.timestamp = Date.now();
         store.write(',\n' + JSON.stringify(message));
         io.emit('new-message', message);
-        messages.push(message);
+        pushMessage(message);
         const i = typers.indexOf(message.username);
         if (i !== -1) {
             // console.log(message.username + ' stopped typing.');

@@ -33,12 +33,14 @@
                   <b>{{message.reply_to.user_id !== user_id ? message.reply_to.username : 'You'}}</b>
                   <span style="float: right;">&emsp;{{formatDate(message.reply_to.timestamp)}}</span>
               </div>
+              <img *ngIf="message.reply_to.image" class="embed-image" [src]="getLowQualityImage(message.reply_to.image)">
               <div >{{message.reply_to.message}}</div>
           </mat-card>
           <div class="messager">
             <b>{{message.user_id !== user_id ? message.username : 'You'}}</b>
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
+          <img *ngIf="message.image" class="embed-image" [src]="getLowQualityImage(message.image)" (click)="showImage(message.image)">
           <div>{{message.message}}</div>
         </mat-card>
         <button mat-icon-button class="reply-button" (click)="quoteReply(message)">
@@ -53,11 +55,21 @@
                 <b>{{replyingTo.user_id !== user_id ? replyingTo.username : 'You'}}</b>
                 <span style="float: right;">&emsp;{{formatDate(replyingTo.timestamp)}}</span>
             </div>
+            <img *ngIf="replyingTo.image" class="embed-image" [src]="getLowQualityImage(replyingTo.image)">
             <div >{{replyingTo.message}}</div>
         </mat-card>
         <button mat-icon-button (click)="replyingTo = null">
           <mat-icon aria-label="close" matTooltip="Close">cancel</mat-icon>
         </button>
+      </div>
+      <div class="attach-image" *ngIf="image || uploadProgress">
+          <mat-card>
+              <div *ngIf="uploadProgress">Uploading... {{uploadProgress}}%</div>
+              <img *ngIf="image" [src]="getLowQualityImage(image)">
+          </mat-card>
+          <button *ngIf="image" mat-icon-button (click)="image = null">
+            <mat-icon aria-label="close" matTooltip="Close">cancel</mat-icon>
+          </button>
       </div>
       <div class="actions">
         <mat-form-field class="messenger" floatLabel="always">
@@ -65,7 +77,8 @@
             <input matInput [placeholder]="'Hey ' + username + '! Type your msg here...'"
                             [(ngModel)]="message" (ngModelChange)="sendTyping($event)"
                             (keydown.enter)="sendMessage()" maxlength="1000" #msg>
-        </mat-form-field>        
+        </mat-form-field>
+        <app-attach-image (progress)="uploadingImage($event)" (upload)="attachImage($event)"></app-attach-image>    
         <button mat-mini-fab color="accent" (click)="sendMessage()">
           <mat-icon aria-label="Send" matTooltip="Send">send</mat-icon>
         </button>

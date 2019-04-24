@@ -8,6 +8,7 @@ import { Howl } from 'howler';
 import * as moment from 'moment';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
+import { ImageComponent } from './image/image.component';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,7 @@ export class AppComponent implements OnInit {
   title = 'Converse';
   username: string;
   user_id: string;
-  message: string;
+  message = '';
   messages: Message[] = [];
   alert: Howl;
   typing: boolean;
@@ -29,6 +30,8 @@ export class AppComponent implements OnInit {
 
   seeing = true;
   replyingTo: Message;
+  uploadProgress: number;
+  image: string;
   unread = 0;
   show_secs = false;
 
@@ -59,7 +62,7 @@ export class AppComponent implements OnInit {
           this.messages.unshift(...messages);
           setTimeout(() =>
             this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
-            10);
+            100);
         });
   }
 
@@ -191,20 +194,41 @@ export class AppComponent implements OnInit {
       this.login();
       return;
     }
-    if (this.message.trim() === '') {
+    if (this.message.trim() === '' && !this.image) {
       return;
     }
     if (this.message.length > 1000) {
       this.message = this.message.substring(0, 1000);
     }
-    this.chatService.sendMessage(this.message, this.username, this.user_id, this.replyingTo);
+    this.chatService.sendMessage(this.message, this.username, this.user_id, this.replyingTo, this.image);
     this.replyingTo = undefined;
+    this.image = '';
     this.message = '';
   }
 
   quoteReply(msg: Message) {
     this.replyingTo = msg;
     this.messageContainer.nativeElement.focus();
+  }
+
+  uploadingImage(progress) {
+    this.uploadProgress = progress;
+  }
+
+  attachImage(url) {
+    this.image = url;
+    this.uploadProgress = undefined;
+  }
+
+  showImage(url: string) {
+    this.dialog.open(ImageComponent, {
+      panelClass: 'full-image',
+      data: url
+    });
+  }
+
+  getLowQualityImage(url: string) {
+    return url.replace(/upload\/v[0-9]*\//, 'upload/q_auto:low/');
   }
 
   logout() {

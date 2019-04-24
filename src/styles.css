@@ -3,3 +3,12 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.full-image {
+    max-width: 90vw !important;
+    max-height: 92vh;
+}
+
+.full-image > .mat-dialog-container {
+    padding: 0;
+}

@@ -1,0 +1,9 @@
+<div class="upload_button_holder">
+    <button mat-mini-fab color="accent" for="fileupload" (click)="fileInput.click()" [disabled]="uploading">
+        <mat-icon aria-label="Send" matTooltip="Attach Pic">add_photo_alternate</mat-icon>
+    </button>
+    <input type="file" id="fileupload" 
+           accept="image/*" #fileInput
+           ng2FileSelect style="display: none;"
+           [uploader]="uploader" (change)="fileInput.value=''" />
+</div>
