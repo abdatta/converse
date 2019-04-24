@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
           this.messages.unshift(...messages);
           setTimeout(() =>
             this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
-            100);
+            10);
         });
   }
 
@@ -225,6 +225,10 @@ export class AppComponent implements OnInit {
       panelClass: 'full-image',
       data: url
     });
+  }
+
+  loadedImage() {
+    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
   }
 
   getLowQualityImage(url: string) {

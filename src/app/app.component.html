@@ -33,14 +33,18 @@
                   <b>{{message.reply_to.user_id !== user_id ? message.reply_to.username : 'You'}}</b>
                   <span style="float: right;">&emsp;{{formatDate(message.reply_to.timestamp)}}</span>
               </div>
-              <img *ngIf="message.reply_to.image" class="embed-image" [src]="getLowQualityImage(message.reply_to.image)">
+              <img *ngIf="message.reply_to.image" class="embed-image"
+                   [src]="getLowQualityImage(message.reply_to.image)"
+                   (load)="loadedImage()" (click)="showImage(message.reply_to.image)">
               <div >{{message.reply_to.message}}</div>
           </mat-card>
           <div class="messager">
             <b>{{message.user_id !== user_id ? message.username : 'You'}}</b>
             <span style="float: right;">&emsp;{{formatDate(message.timestamp)}}</span>
           </div>
-          <img *ngIf="message.image" class="embed-image" [src]="getLowQualityImage(message.image)" (click)="showImage(message.image)">
+          <img *ngIf="message.image" class="embed-image"
+               [src]="getLowQualityImage(message.image)"
+               (load)="loadedImage()" (click)="showImage(message.image)">
           <div>{{message.message}}</div>
         </mat-card>
         <button mat-icon-button class="reply-button" (click)="quoteReply(message)">
