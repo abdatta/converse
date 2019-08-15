@@ -2,9 +2,23 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.4.
 
-## Development server
+## Installation Setup
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+#### Requirements
+- Node.js and npm
+- Angular CLI: `npm install -g @angular/cli`
+
+#### Setup
+```
+git clone https://github.com/abdatta/converse.git
+cd converse && npm install
+cd server && npm install
+cd .. && npm start
+```
+
+## Development
+
+Run `npm start` from the base directory for a live dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
@@ -25,3 +39,4 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+For further help regarding this project, feel free to contact [me](mailto:iamrohandatta@gmail.com) or raise an issue here.
