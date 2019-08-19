@@ -24,7 +24,12 @@ store.on('open', () => {
         timestamp: Date.now()
     });
 
-    let messages = JSON.parse('[' + init_msg + fs.readFileSync('store.db', 'utf8') + ']');
+    let fromStore = fs.readFileSync('store.db', 'utf8');
+    // Adds a comma at front if absent, ignores if store is empty
+    if (fromStore && !fromStore.startsWith(',')) {
+        fromStore = ',\n' + fromStore;
+    }
+    let messages = JSON.parse('[' + init_msg + fromStore + ']');
     const msg_limit = 300;
     if (messages.length > msg_limit) messages = messages.splice(-msg_limit);
     const pushMessage = (msg) => {
