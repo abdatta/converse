@@ -25,8 +25,8 @@ export class AppComponent implements OnInit {
   typing: boolean;
   typers = '';
   onlines = '';
-  @ViewChild('chats') chatContainer: ElementRef;
-  @ViewChild('msg') messageContainer: ElementRef;
+  @ViewChild('chats', { static: true }) chatContainer: ElementRef;
+  @ViewChild('msg', { static: true }) messageContainer: ElementRef;
 
   seeing = true;
   replyingTo: Message;

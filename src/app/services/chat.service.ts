@@ -10,11 +10,10 @@ import { Message } from '../models/message.model';
 export class ChatService {
 
   private url = environment.server_url;
-  private socket;
+  private socket = io(this.url);
   public old_messages: Promise<Message[]>;
 
   constructor() {
-      this.socket = io(this.url);
       this.old_messages = new Promise((resolve) => {
         this.socket.on('old-messages', (message) => {
           resolve(message);
