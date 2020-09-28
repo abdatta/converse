@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ChatService } from './services/chat.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { OnPageVisibilityChange, AngularPageVisibilityStateEnum } from 'angular-page-visibility';
 import { Howl } from 'howler';

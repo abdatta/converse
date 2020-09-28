@@ -37,7 +37,7 @@
     flex: none;
 }
 
-:host/deep/ .mat-card-header-text {
+:host::ng-deep .mat-card-header-text {
     flex-grow: 1;
 }
 
@@ -90,15 +90,15 @@
     color: white;
 }
 
-:host/deep/ .mat-form-field.mat-focused .mat-form-field-ripple {
+:host::ng-deep .mat-form-field.mat-focused .mat-form-field-ripple {
     background-color: #69f0ae !important;
 }
 
-:host/deep/ .mat-form-field.mat-focused .mat-form-field-label {
+:host::ng-deep .mat-form-field.mat-focused .mat-form-field-label {
     color: #69f0ae !important;
 }
 
-:host/deep/ .mat-form-field .mat-form-field-label {
+:host::ng-deep .mat-form-field .mat-form-field-label {
     color: #69f0ae !important;
 }
 
