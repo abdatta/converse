@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
   image: string;
   unread = 0;
   show_secs = false;
+  voice_joined = false;
 
   constructor(private chatService: ChatService,
               private titleService: Title,

@@ -4,16 +4,17 @@
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title>{{ title }}</mat-card-title>
       <mat-card-subtitle *ngIf="username">{{onlines}}</mat-card-subtitle>
-      <!-- <button mat-icon-button>
-          <mat-icon aria-label="logout" matTooltip="Logout" >exit_to_app</mat-icon>
-      </button> -->
         <button mat-icon-button [matMenuTriggerFor]="menu">
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu" xPosition="before">
           <button mat-menu-item (click)="toggleShowSec()">
             <mat-icon>{{show_secs? 'timer_off': 'timer' }}</mat-icon>
-            <span>{{show_secs? 'Hide': 'Show' }} seconds</span>
+            <span>{{show_secs? 'Hide': 'Show' }} Seconds</span>
+          </button>
+          <button mat-menu-item (click)="voice_joined = !voice_joined;">
+            <mat-icon>{{voice_joined? 'voice_over_off': 'record_voice_over' }}</mat-icon>
+            <span>{{voice_joined? 'Leave': 'Join' }} Voice</span>
           </button>
           <button mat-menu-item (click)="logout()">
             <mat-icon>exit_to_app</mat-icon>
@@ -22,6 +23,20 @@
         </mat-menu>
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
+      <mat-expansion-panel *ngIf="voice_joined" class="voice-bar">
+        <mat-expansion-panel-header>
+          <mat-panel-title style="align-items: center;">
+            <mat-icon>volume_up</mat-icon>
+            &nbsp;Voice channel active (2)
+          </mat-panel-title>
+          <mat-panel-description style="align-items: center;">
+            You joining...
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div style="display: flex; align-items: center;">
+          <mat-icon>record_voice_over</mat-icon>&nbsp;&nbsp;Peer 1
+        </div>
+      </mat-expansion-panel>
       <div class="message right"
            [class.left]="message.user_id !== user_id"
            *ngFor="let message of messages">

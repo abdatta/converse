@@ -41,8 +41,7 @@
     flex-grow: 1;
 }
 
-.mat-card-content{ 
-    margin-top: 5px;
+.mat-card-content{
     margin-bottom: 0;
     flex-grow: 1;
     overflow-y: auto;
@@ -176,4 +175,13 @@
 
 .mat-mini-fab {
     margin: 5px 0 0 10px;
+}
+
+.voice-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    border-radius: 0;
+    background-color: #f1932c;
 }
