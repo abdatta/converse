@@ -43,6 +43,12 @@ store.on('open', () => {
     let typers = [];
     let typeTimeouts = {};
 
+    const vc_users = new Map(); // socket.id => user_id
+    vc_users.getKey = (value) => {
+        const entry = Array.from(vc_users.entries()).find(([key, val]) => val === value);
+        return entry && entry[0];
+    };
+
     io.on('connection', (socket) => {
         console.log('New User Connected.');
 
@@ -113,6 +119,40 @@ store.on('open', () => {
             }
             io.emit('typing', typers);
         });
+
+        // Voice events
+        socket.on("join-vc", (user) => {
+            console.log("join-vc", user, Object.fromEntries(vc_users.entries()))
+            client.emit("vc-users", Array.from(vc_users.values()));
+            vc_users.set(client.id, user);
+        });
+
+        socket.on("initiate-signal", ({ peerID, signal }) => {
+            if (!vc_users.has(socket.id)) return;
+            const initiatorID = vc_users.get(socket.id);
+            console.log("initiate-signal", ({ peerID, initiatorID }));
+            if (!vc_users.getKey(peerID)) return console.log("Peer not in VC!");
+            io.to(vc_users.getKey(peerID)).emit('user-joined', { signal, initiatorID });
+        });
+
+        socket.on("return-signal", ({ initiatorID, signal }) => {
+            if (!vc_users.has(socket.id)) return;
+            const peerID = vc_users.get(socket.id);
+            console.log("return-signal", ({ initiatorID, peerID }));
+            if (!vc_users.getKey(initiatorID)) return console.log("Initiator not in VC!");
+            io.to(vc_users.getKey(initiatorID)).emit('receive-return-signal', { signal, peerID });
+        });
+
+        const leaveVC = () => {
+            if (!vc_users.has(socket.id)) return;
+            const user = vc_users.get(socket.id);
+            console.log("leave-vc", user)
+            users.delete(socket.id);
+            io.emit('user-left', user);
+        };
+
+        socket.on('leave-vc', leaveVC);
+        socket.on('disconnect', leaveVC);
     });
 
     server.listen(port, () => {
