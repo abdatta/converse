@@ -9,6 +9,8 @@ import * as moment from 'moment';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 import { ImageComponent } from './image/image.component';
+import { Instance } from 'simple-peer';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +36,15 @@ export class AppComponent implements OnInit {
   image: string;
   unread = 0;
   show_secs = false;
+
+  // VC properties
   voice_joined = false;
+  private _stream: MediaStream;
+  vc_users = new Map<string, {
+    peer: Instance;
+    onConnect: Observable<boolean>;
+    onStream: Observable<MediaStream>;
+  } | null>();
 
   constructor(private chatService: ChatService,
               private titleService: Title,
@@ -65,6 +75,7 @@ export class AppComponent implements OnInit {
             this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
             10);
         });
+    this.addNewVoiceUser();
   }
 
   ngOnInit() {
@@ -279,5 +290,47 @@ export class AppComponent implements OnInit {
     hb = (hb.length === 1) ? '0' + hb : hb;
 
     return '#' + hr + hg + hb;
+  }
+
+  // VC functions
+  async getAudioStream() {
+    if (this._stream) {
+      return this._stream;
+    }
+    const getStream = () => {
+      const constraints = { audio: true };
+      if (navigator.mediaDevices.getUserMedia) {
+        return navigator.mediaDevices.getUserMedia(constraints);
+      }
+      navigator.getUserMedia = navigator.getUserMedia || navigator['webkitGetUserMedia'] ||
+                              navigator['mozGetUserMedia'] || navigator['msGetUserMedia'];
+      return new Promise<MediaStream>((resolve, reject) => navigator.getUserMedia(constraints, resolve, reject));
+    };
+    return this._stream = await getStream();
+  }
+
+  async joinVC() {
+    if (this.voice_joined) {
+      return;
+    }
+    const stream = await this.getAudioStream();
+    this.chatService.joinVoice(this.user_id).subscribe(users => {
+      this.voice_joined = true;
+      this.vc_users = new Map();
+      users.forEach(userID => this.vc_users.set(userID, this.chatService.createPeer(userID, stream)));
+    });
+  }
+
+  async addNewVoiceUser() {
+    this.chatService.newVoiceUser()
+      .subscribe(async ({initiatorID, signal}) => {
+        console.log('user-joined', {initiatorID, signal});
+        if (this.vc_users.has(initiatorID)) {
+          console.log('Initiator vc_user already exists with id:', initiatorID);
+          return;
+        }
+        const stream = await this.getAudioStream();
+        this.vc_users.set(initiatorID, this.chatService.addPeer(signal, initiatorID, stream));
+      });
   }
 }
