@@ -78,7 +78,7 @@ export class AppComponent implements OnInit {
     // Fetch messages
     this.chatService
       .getMessages()
-      .subscribe((message: Message) => {
+      .subscribe(message => {
         this.messages.push(message);
         if (message.user_id !== this.user_id) {
           this.alert.play();
@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
     // Fetch Onlines
     this.chatService
       .getOnline()
-      .subscribe((users: string[]) => {
+      .subscribe(users => {
         if (users.includes(this.username)) {
           users.splice(users.indexOf(this.username), 1);
         }
@@ -111,7 +111,7 @@ export class AppComponent implements OnInit {
     // Fetch Typers
     this.chatService
       .getTypers()
-      .subscribe((typers: string[]) => {
+      .subscribe(typers => {
         if (typers.includes(this.username)) {
           typers.splice(typers.indexOf(this.username), 1);
         }

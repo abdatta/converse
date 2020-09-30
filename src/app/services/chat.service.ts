@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import { Message } from '../models/message.model';
 
 @Injectable({
@@ -11,14 +11,9 @@ export class ChatService {
 
   private url = environment.server_url;
   private socket = io(this.url);
-  public old_messages: Promise<Message[]>;
+  public old_messages = new Promise<Message[]>(resolve => this.socket.on('old-messages', resolve));
 
   constructor() {
-      this.old_messages = new Promise((resolve) => {
-        this.socket.on('old-messages', (message) => {
-          resolve(message);
-        });
-      });
   }
 
   public sendMessage(message: string, username: string, user_id: string, reply_to?: Message, image?: string) {
@@ -30,11 +25,7 @@ export class ChatService {
   }
 
   public getMessages() {
-    return Observable.create((observer) => {
-        this.socket.on('new-message', (message) => {
-            observer.next(message);
-        });
-    });
+    return fromEvent<Message>(this.socket, 'new-message');
   }
 
   public sendTyping(username: string) {
@@ -42,11 +33,7 @@ export class ChatService {
   }
 
   public getTypers() {
-    return Observable.create((observer) => {
-        this.socket.on('typing', (typers) => {
-            observer.next(typers);
-        });
-    });
+    return fromEvent<string[]>(this.socket, 'typing');
   }
 
   public sendOnline(username: string) {
@@ -54,10 +41,6 @@ export class ChatService {
   }
 
   public getOnline() {
-    return Observable.create((observer) => {
-        this.socket.on('online', (users) => {
-            observer.next(users);
-        });
-    });
+    return fromEvent<string[]>(this.socket, 'online');
   }
 }
