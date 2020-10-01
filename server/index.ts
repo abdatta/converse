@@ -1,19 +1,31 @@
-let express = require('express')
-let app = express();
+import express from 'express';
+import { Server } from 'http';
+import socketIO from 'socket.io';
+import fs from 'fs';
 
-let http = require('http');
-let server = http.Server(app);
+const app = express();
 
-let socketIO = require('socket.io');
-let io = socketIO(server);
+const server = new Server(app);
+
+const io = socketIO(server);
 
 const port = process.env.PORT || 3600;
 
 const logger = console.log;
 console.log = (...logs) => logger('[' + new Date() + ']', ...logs);
 
-let fs = require('fs');
-let store = fs.createWriteStream('store.db',  {flags:'a'});
+const store = fs.createWriteStream('store.db',  {flags: 'a'});
+
+class TwoWayMap<K, V> extends Map<K, V> {
+    getKey = (v: V) => Array.from(this.entries()).filter(([key, val]) => val === v).map(([key]) => key);
+}
+
+interface Message {
+    message: string;
+    username: string;
+    user_id: string;
+    timestamp: number;
+}
 
 store.on('open', () => {
 
@@ -29,22 +41,23 @@ store.on('open', () => {
     if (fromStore && !fromStore.startsWith(',')) {
         fromStore = ',\n' + fromStore;
     }
-    let messages = JSON.parse('[' + init_msg + fromStore + ']');
+    let messages: Message[] = JSON.parse('[' + init_msg + fromStore + ']');
     const msg_limit = 300;
-    if (messages.length > msg_limit) messages = messages.splice(-msg_limit);
-    const pushMessage = (msg) => {
+    if (messages.length > msg_limit) { messages = messages.splice(-msg_limit); }
+    const pushMessage = (msg: Message) => {
         messages.push(msg);
-        if (messages.length > msg_limit)
+        if (messages.length > msg_limit) {
             messages.shift();
-    }
+        }
+    };
 
-    let onlines = [];
-    let onlineTimeouts = {};
-    let typers = [];
-    let typeTimeouts = {};
+    const onlines: string[] = [];
+    const onlineTimeouts: {[k: string]: NodeJS.Timeout} = {};
+    const typers: string[] = [];
+    const typeTimeouts: {[k: string]: NodeJS.Timeout} = {};
 
-    const vc_users = new Map(); // socket.id => user_id
-    vc_users.getKey = v => Array.from(vc_users.entries()).filter(([key, val]) => val === v).map(([key]) => key);
+    // Maps socket.id => user_id
+    const vc_users = new TwoWayMap<string, string>();
 
     io.on('connection', (socket) => {
         console.log('New User Connected.');
@@ -52,7 +65,7 @@ store.on('open', () => {
         // Messages
         io.emit('old-messages', messages);
 
-        socket.on('new-message', (message) => {
+        socket.on('new-message', (message: Message) => {
             message.timestamp = Date.now();
             store.write(',\n' + JSON.stringify(message));
             io.emit('new-message', message);
@@ -62,7 +75,7 @@ store.on('open', () => {
                 // console.log(message.username + ' stopped typing.');
                 typers.splice(i, 1);
                 clearTimeout(typeTimeouts[message.username]);
-                typeTimeouts[message.username] = undefined;
+                delete typeTimeouts[message.username];
                 io.emit('typing', typers);
             }
         });
@@ -70,16 +83,16 @@ store.on('open', () => {
         // Online
         io.emit('online', onlines);
 
-        const onlineTO = (user) => () => {
+        const onlineTO = (user: string) => () => {
             const i = onlines.indexOf(user);
             if (i !== -1) {
                 console.log(user + ' went offline.');
                 onlines.splice(i, 1);
             }
             io.emit('online', onlines);
-        }
+        };
 
-        socket.on('online', (user) => {
+        socket.on('online', (user: string) => {
             const i = onlines.indexOf(user);
             if (i === -1) {
                 console.log(user + ' is online.');
@@ -95,16 +108,16 @@ store.on('open', () => {
         // Typing
         io.emit('typing', typers);
 
-        const to = (typer) => () => {
+        const to = (typer: string) => () => {
             const i = typers.indexOf(typer);
             if (i !== -1) {
                 // console.log(typer + ' stopped typing.');
                 typers.splice(i, 1);
             }
             io.emit('typing', typers);
-        }
+        };
 
-        socket.on('typing', (typer) => {
+        socket.on('typing', (typer: string) => {
             // console.log(typer + ' is typing...');
             const i = typers.indexOf(typer);
             if (i === -1) {
@@ -118,37 +131,37 @@ store.on('open', () => {
         });
 
         // Voice events
-        socket.on("join-vc", (user) => {
-            console.log("join-vc", user, Object.fromEntries(vc_users.entries()))
+        socket.on('join-vc', (user: string) => {
+            console.log('join-vc', user, Object.fromEntries(vc_users.entries()));
             const existing = vc_users.getKey(user);
             if (existing.length) {
                 io.emit('user-left', user);
                 existing.forEach(sid => vc_users.delete(sid));
             }
-            socket.emit("vc-users", Array.from(vc_users.values()));
+            socket.emit('vc-users', Array.from(vc_users.values()));
             vc_users.set(socket.id, user);
         });
 
-        socket.on("initiate-signal", ({ peerID, signal }) => {
-            if (!vc_users.has(socket.id)) return;
+        socket.on('initiate-signal', ({ peerID, signal }) => {
+            if (!vc_users.has(socket.id)) { return; }
             const initiatorID = vc_users.get(socket.id);
-            console.log("initiate-signal", ({ peerID, initiatorID }));
-            if (!vc_users.getKey(peerID).length) return console.log("Peer not in VC!");
+            console.log('initiate-signal', ({ peerID, initiatorID }));
+            if (!vc_users.getKey(peerID).length) { return console.log('Peer not in VC!'); }
             io.to(vc_users.getKey(peerID)[0]).emit('user-joined', { signal, initiatorID });
         });
 
-        socket.on("return-signal", ({ initiatorID, signal }) => {
-            if (!vc_users.has(socket.id)) return;
+        socket.on('return-signal', ({ initiatorID, signal }) => {
+            if (!vc_users.has(socket.id)) { return; }
             const peerID = vc_users.get(socket.id);
-            console.log("return-signal", ({ initiatorID, peerID }));
-            if (!vc_users.getKey(initiatorID).length) return console.log("Initiator not in VC!");
+            console.log('return-signal', ({ initiatorID, peerID }));
+            if (!vc_users.getKey(initiatorID).length) { return console.log('Initiator not in VC!'); }
             io.to(vc_users.getKey(initiatorID)[0]).emit('receive-return-signal', { signal, peerID });
         });
 
         const leaveVC = () => {
-            if (!vc_users.has(socket.id)) return;
+            if (!vc_users.has(socket.id)) { return; }
             const user = vc_users.get(socket.id);
-            console.log("leave-vc", user)
+            console.log('leave-vc', user);
             vc_users.delete(socket.id);
             io.emit('user-left', user);
         };
