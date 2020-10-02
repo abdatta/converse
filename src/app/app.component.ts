@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ChatService } from './services/chat.service';
+import { ChatService, PeerConnection } from './services/chat.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { OnPageVisibilityChange, AngularPageVisibilityStateEnum } from 'angular-page-visibility';
@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 import { ImageComponent } from './image/image.component';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,15 @@ export class AppComponent implements OnInit {
   image: string;
   unread = 0;
   show_secs = false;
+
+  // VC properties
+  voice_status: 'JOINED' | 'LEFT' | 'JOINING' = 'LEFT';
+  private _stream: MediaStream;
+  vc_users = new Map<string, {
+    username: string;
+    peerConnection?: PeerConnection
+  }>();
+  @ViewChild('vcPanel', { static: true }) vcPanel: MatExpansionPanel;
 
   constructor(private chatService: ChatService,
               private titleService: Title,
@@ -64,6 +74,7 @@ export class AppComponent implements OnInit {
             this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
             10);
         });
+    this.voiceUserUpdates();
   }
 
   ngOnInit() {
@@ -77,7 +88,7 @@ export class AppComponent implements OnInit {
     // Fetch messages
     this.chatService
       .getMessages()
-      .subscribe((message: Message) => {
+      .subscribe(message => {
         this.messages.push(message);
         if (message.user_id !== this.user_id) {
           this.alert.play();
@@ -94,7 +105,7 @@ export class AppComponent implements OnInit {
     // Fetch Onlines
     this.chatService
       .getOnline()
-      .subscribe((users: string[]) => {
+      .subscribe(users => {
         if (users.includes(this.username)) {
           users.splice(users.indexOf(this.username), 1);
         }
@@ -110,7 +121,7 @@ export class AppComponent implements OnInit {
     // Fetch Typers
     this.chatService
       .getTypers()
-      .subscribe((typers: string[]) => {
+      .subscribe(typers => {
         if (typers.includes(this.username)) {
           typers.splice(typers.indexOf(this.username), 1);
         }
@@ -278,5 +289,82 @@ export class AppComponent implements OnInit {
     hb = (hb.length === 1) ? '0' + hb : hb;
 
     return '#' + hr + hg + hb;
+  }
+
+  // VC functions
+  async getAudioStream() {
+    if (this._stream) {
+      return this._stream;
+    }
+    const getStream = () => {
+      const constraints = { audio: true };
+      if (navigator.mediaDevices.getUserMedia) {
+        return navigator.mediaDevices.getUserMedia(constraints);
+      }
+      navigator.getUserMedia = navigator.getUserMedia || navigator['webkitGetUserMedia'] ||
+                              navigator['mozGetUserMedia'] || navigator['msGetUserMedia'];
+      return new Promise<MediaStream>((resolve, reject) => navigator.getUserMedia(constraints, resolve, reject));
+    };
+    return this._stream = await getStream();
+  }
+
+  async toggleVC() {
+    switch (this.voice_status) {
+      // Previous status was 'LEFT', now will be 'JOINING'
+      case 'LEFT':
+        this.voice_status = 'JOINING';
+        const stream = await this.getAudioStream();
+        this.chatService.joinVoice(this.user_id, this.username).subscribe(users => {
+          this.vc_users = new Map();
+          users.forEach(user => this.vc_users.set(user.user_id, {
+            username: user.username,
+            peerConnection: user.user_id !== this.user_id ? this.chatService.createPeer(user, stream) : undefined
+          }));
+          this.voice_status = 'JOINED';
+          this.vcPanel.open();
+        });
+        break;
+
+     // Previous status was 'JOINED', now will be 'LEAVING'
+      case 'JOINED':
+        this.vc_users.forEach((data) => delete data.peerConnection);
+        this.chatService.leaveVoice();
+        this.voice_status = 'LEFT';
+        break;
+
+      // Ignore these cases
+      case 'JOINING':
+      default:
+        break;
+    }
+  }
+
+  async voiceUserUpdates() {
+    this.chatService.getVoiceUsers()
+      .subscribe(users => {
+        const updated_vc_users = new Map<string, {username: string; peerConnection?: PeerConnection}>();
+        users.forEach(user => {
+          if (this.vc_users.has(user.user_id)) {
+            updated_vc_users.set(user.user_id, this.vc_users.get(user.user_id));
+          } else {
+            updated_vc_users.set(user.user_id, {username: user.username});
+          }
+        });
+        this.vc_users = updated_vc_users;
+      });
+    this.chatService.newVoiceUserConnecting()
+      .subscribe(async ({initiator, signal}) => {
+        console.log('user-joined', {initiator, signal});
+        const existing = this.vc_users.get(initiator.user_id);
+        if (existing && existing.peerConnection) {
+          console.log('Connected vc_user already exists with id:', initiator.user_id);
+          return;
+        }
+        const stream = await this.getAudioStream();
+        this.vc_users.set(initiator.user_id, {
+          username: initiator.username,
+          peerConnection: this.chatService.addPeer(signal, initiator, stream)
+        });
+      });
   }
 }
