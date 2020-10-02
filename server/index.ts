@@ -20,10 +20,13 @@ class TwoWayMap<K, V> extends Map<K, V> {
     getKey = (v: V) => Array.from(this.entries()).filter(([key, val]) => val === v).map(([key]) => key);
 }
 
-interface Message {
-    message: string;
-    username: string;
+interface User {
     user_id: string;
+    username: string;
+}
+
+interface Message extends User {
+    message: string;
     timestamp: number;
 }
 
@@ -56,8 +59,10 @@ store.on('open', () => {
     const typers: string[] = [];
     const typeTimeouts: {[k: string]: NodeJS.Timeout} = {};
 
-    // Maps socket.id => user_id
-    const vc_users = new TwoWayMap<string, string>();
+    // Maps socket.id => user
+    const vc_users = new Map<string, User>();
+    const getSocketId = (user_id: string) =>
+        Array.from(vc_users.entries()).filter(([sid, user]) => user.user_id === user_id).map(([sid]) => sid);
 
     io.on('connection', (socket) => {
         console.log('New User Connected.');
@@ -131,9 +136,9 @@ store.on('open', () => {
         });
 
         // Voice events
-        socket.on('join-vc', (user: string) => {
-            console.log('join-vc', user, Object.fromEntries(vc_users.entries()));
-            const existing = vc_users.getKey(user);
+        socket.on('join-vc', (user: User) => {
+            console.log('join-vc', user, Array.from(vc_users.values()));
+            const existing = getSocketId(user.user_id);
             if (existing.length) {
                 io.emit('user-left', user);
                 existing.forEach(sid => vc_users.delete(sid));
@@ -142,20 +147,22 @@ store.on('open', () => {
             vc_users.set(socket.id, user);
         });
 
-        socket.on('initiate-signal', ({ peerID, signal }) => {
-            if (!vc_users.has(socket.id)) { return; }
-            const initiatorID = vc_users.get(socket.id);
-            console.log('initiate-signal', ({ peerID, initiatorID }));
-            if (!vc_users.getKey(peerID).length) { return console.log('Peer not in VC!'); }
-            io.to(vc_users.getKey(peerID)[0]).emit('user-joined', { signal, initiatorID });
+        socket.on('initiate-signal', (data: { peer: User, signal: any }) => {
+            const { peer, signal } = data;
+            const initiator = vc_users.get(socket.id);
+            if (!initiator) { return; }
+            console.log('initiate-signal', ({ peer: peer.username, initiator: initiator.username }));
+            if (!getSocketId(peer.user_id).length) { return console.log('Peer not in VC!'); }
+            io.to(getSocketId(peer.user_id)[0]).emit('user-joined', { signal, initiator });
         });
 
-        socket.on('return-signal', ({ initiatorID, signal }) => {
-            if (!vc_users.has(socket.id)) { return; }
-            const peerID = vc_users.get(socket.id);
-            console.log('return-signal', ({ initiatorID, peerID }));
-            if (!vc_users.getKey(initiatorID).length) { return console.log('Initiator not in VC!'); }
-            io.to(vc_users.getKey(initiatorID)[0]).emit('receive-return-signal', { signal, peerID });
+        socket.on('return-signal', (data: { initiator: User, signal: any }) => {
+            const { initiator, signal } = data;
+            const peer = vc_users.get(socket.id);
+            if (!peer) { return; }
+            console.log('return-signal', ({ initiator: initiator.username, peer: peer.username }));
+            if (!getSocketId(initiator.user_id).length) { return console.log('Initiator not in VC!'); }
+            io.to(getSocketId(initiator.user_id)[0]).emit('receive-return-signal', { signal, peer });
         });
 
         const leaveVC = () => {

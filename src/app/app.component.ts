@@ -11,6 +11,7 @@ import { Message } from './models/message.model';
 import { ImageComponent } from './image/image.component';
 import { Instance } from 'simple-peer';
 import { Observable } from 'rxjs';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-root',
@@ -41,10 +42,13 @@ export class AppComponent implements OnInit {
   voice_joined = false;
   private _stream: MediaStream;
   vc_users = new Map<string, {
-    peer: Instance;
-    onConnect: Observable<boolean>;
-    onStream: Observable<MediaStream>;
-  } | null>();
+    username: string;
+    peerConnection?: {
+      connection: Instance;
+      onConnect: Observable<boolean>;
+      onStream: Observable<MediaStream>;
+    }
+  }>();
 
   constructor(private chatService: ChatService,
               private titleService: Title,
@@ -75,7 +79,7 @@ export class AppComponent implements OnInit {
             this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight,
             10);
         });
-    this.addNewVoiceUser();
+    this.voiceUserUpdates();
   }
 
   ngOnInit() {
@@ -314,23 +318,33 @@ export class AppComponent implements OnInit {
       return;
     }
     const stream = await this.getAudioStream();
-    this.chatService.joinVoice(this.user_id).subscribe(users => {
+    this.chatService.joinVoice(this.user_id, this.username).subscribe(users => {
       this.voice_joined = true;
       this.vc_users = new Map();
-      users.forEach(userID => this.vc_users.set(userID, this.chatService.createPeer(userID, stream)));
+      users.forEach(user => this.vc_users.set(user.user_id, {
+        username: user.username,
+        peerConnection: this.chatService.createPeer(user, stream)
+      }));
     });
   }
 
-  async addNewVoiceUser() {
+  async voiceUserUpdates() {
     this.chatService.newVoiceUser()
-      .subscribe(async ({initiatorID, signal}) => {
-        console.log('user-joined', {initiatorID, signal});
-        if (this.vc_users.has(initiatorID)) {
-          console.log('Initiator vc_user already exists with id:', initiatorID);
+      .subscribe(async ({initiator, signal}) => {
+        console.log('user-joined', {initiator, signal});
+        const existing = this.vc_users.get(initiator.user_id);
+        if (existing && existing.peerConnection) {
+          console.log('Connected vc_user already exists with id:', initiator.user_id);
           return;
         }
         const stream = await this.getAudioStream();
-        this.vc_users.set(initiatorID, this.chatService.addPeer(signal, initiatorID, stream));
+        this.vc_users.set(initiator.user_id, {
+          username: initiator.username,
+          peerConnection: this.chatService.addPeer(signal, initiator, stream)
+        });
       });
+
+    this.chatService.leftVoiceUser()
+      .subscribe(user => this.vc_users.delete(user.user_id));
   }
 }

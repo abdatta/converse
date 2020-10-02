@@ -3,7 +3,7 @@ import * as io from 'socket.io-client';
 import { environment } from '../../environments/environment';
 import { fromEvent } from 'rxjs';
 import { first, share, filter, tap, mapTo } from 'rxjs/operators';
-import { Message } from '../models/message.model';
+import { Message, User } from '../models/message.model';
 import * as SimplePeer from 'simple-peer';
 import { SignalData } from 'simple-peer';
 
@@ -16,7 +16,7 @@ export class ChatService {
   private socket = io(this.url);
   public old_messages = new Promise<Message[]>(resolve => this.socket.on('old-messages', resolve));
 
-  private receiveReturnSignal = fromEvent<{ signal: SignalData, peerID: string }>(this.socket, 'receive-return-signal').pipe(share());
+  private receiveReturnSignal = fromEvent<{ signal: SignalData, peer: User }>(this.socket, 'receive-return-signal').pipe(share());
 
   constructor() {
   }
@@ -49,64 +49,74 @@ export class ChatService {
     return fromEvent<string[]>(this.socket, 'online');
   }
 
-  public joinVoice(initiatorID: string) {
-    this.socket.emit('join-vc', initiatorID);
-    return fromEvent<string[]>(this.socket, 'vc-users').pipe(first());
+  // Voice events
+
+  public joinVoice(user_id: string, username: string) {
+    this.socket.emit('join-vc', { user_id, username });
+    return fromEvent<User[]>(this.socket, 'vc-users').pipe(first());
   }
 
   public newVoiceUser() {
-    return fromEvent<{ signal: SignalData, initiatorID: string }>(this.socket, 'user-joined');
+    return fromEvent<{ signal: SignalData, initiator: User }>(this.socket, 'user-joined');
   }
 
-  public createPeer(peerID: string, stream: MediaStream) {
-    const peer = new SimplePeer({
+  public leftVoiceUser() {
+    return fromEvent<User>(this.socket, 'user-left');
+  }
+
+  public createPeer(peer: User, stream: MediaStream) {
+    const peerConnection = new SimplePeer({
         initiator: true,
         trickle: false,
         stream
     });
 
-    peer.on('signal', (signal: SignalData) => {
-        console.log('initiate-signal', { peerID, signal });
-        this.socket.emit('initiate-signal', { peerID, signal });
+    peerConnection.on('signal', (signal: SignalData) => {
+        console.log('initiate-signal', { peer, signal });
+        this.socket.emit('initiate-signal', { peer, signal });
     });
 
+    peerConnection.on('close', () => console.log('Connection closed for peer: ' + peer.username));
+
     this.receiveReturnSignal
-      .pipe(filter(({ peerID: id }) => id === peerID), first())
+      .pipe(filter(({ peer: { user_id } }) => user_id === peer.user_id), first())
       .subscribe(({ signal }) => {
         console.log('Signaling initiator signal:', { signal });
-        peer.signal(signal);
+        peerConnection.signal(signal);
       });
 
     return {
-      peer,
-      onConnect: fromEvent<void>(peer, 'connect').pipe(tap(() => console.log('Connected to existing peer!')), mapTo(true)),
-      onStream: fromEvent<MediaStream>(peer, 'stream').pipe(tap((s) => console.log('stream from existing peer', s)))
+      connection: peerConnection,
+      onConnect: fromEvent<void>(peerConnection, 'connect').pipe(tap(() => console.log('Connected to existing peer!')), mapTo(true)),
+      onStream: fromEvent<MediaStream>(peerConnection, 'stream').pipe(tap((s) => console.log('stream from existing peer', s)))
     };
   }
 
-  public addPeer(incomingSignal: SignalData, initiatorID: string, stream: MediaStream) {
-    const peer = new SimplePeer({
+  public addPeer(incomingSignal: SignalData, initiator: User, stream: MediaStream) {
+    const peerConnection = new SimplePeer({
         initiator: false,
         trickle: false,
         stream,
     });
 
-    peer.on('signal', signal => {
+    peerConnection.on('signal', signal => {
         if (signal.renegotiate) {
           console.log('Not renogotiating', { signal });
           return;
         }
-        console.log('return-signal', { initiatorID, signal });
-        this.socket.emit('return-signal', { initiatorID, signal });
+        console.log('return-signal', { initiator, signal });
+        this.socket.emit('return-signal', { initiator, signal });
     });
 
+    peerConnection.on('close', () => console.log('Connection closed for peer: ' + initiator.username));
+
     console.log('Signaling incoming signal:', { incomingSignal });
-    peer.signal(incomingSignal);
+    peerConnection.signal(incomingSignal);
 
     return {
-      peer,
-      onConnect: fromEvent<void>(peer, 'connect').pipe(tap(() => console.log('Connected to new peer!')), mapTo(true)),
-      onStream: fromEvent<MediaStream>(peer, 'stream').pipe(tap((s) => console.log('stream from new peer', s)))
+      connection: peerConnection,
+      onConnect: fromEvent<void>(peerConnection, 'connect').pipe(tap(() => console.log('Connected to new peer!')), mapTo(true)),
+      onStream: fromEvent<MediaStream>(peerConnection, 'stream').pipe(tap((s) => console.log('stream from new peer', s)))
     };
   }
 }

@@ -23,7 +23,7 @@
         </mat-menu>
     </mat-card-header>
     <mat-card-content #chats [class.blur]="!isLoggedIn()">
-      <mat-expansion-panel *ngIf="voice_joined" class="voice-bar">
+      <mat-expansion-panel *ngIf="voice_joined || vc_users.size" class="voice-bar">
         <mat-expansion-panel-header>
           <mat-panel-title style="align-items: center;">
             <mat-icon>volume_up</mat-icon>
@@ -34,18 +34,18 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
         <div style="display: flex; align-items: center;" *ngFor="let vc_user of vc_users | keyvalue">
-          <mat-icon>record_voice_over</mat-icon>&nbsp;&nbsp;{{vc_user.key}}
-          <ng-container *ngIf="vc_user.value; else notConnected">
-            <audio *ngIf="vc_user.value" autoplay [srcObject]="vc_user.value.onStream | async"></audio>
-            <ng-container *ngIf="vc_user.value.onConnect | async; else connecting">
-              &nbsp;&nbsp;Connected
+          <mat-icon>record_voice_over</mat-icon>&nbsp;&nbsp;{{vc_user.value.username}}
+          <ng-container *ngIf="vc_user.value?.peerConnection; else notConnected">
+            <audio autoplay [srcObject]="vc_user.value.peerConnection.onStream | async"></audio>
+            <ng-container *ngIf="vc_user.value.peerConnection.onConnect | async; else connecting">
+              &nbsp;&nbsp;(Connected)
             </ng-container>
             <ng-template #connecting>
-              &nbsp;&nbsp;Connecting...
+              &nbsp;&nbsp;(Connecting...)
             </ng-template>
           </ng-container>
           <ng-template #notConnected>
-            &nbsp;&nbsp;Not Connected
+            &nbsp;&nbsp;(Not Connected)
           </ng-template>
           
         </div>
