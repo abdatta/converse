@@ -63,6 +63,10 @@ export class ChatService {
     return fromEvent<{ signal: SignalData, initiator: User }>(this.socket, 'user-connecting');
   }
 
+  public leaveVoice() {
+    this.socket.emit('leave-vc');
+  }
+
   public createPeer(peer: User, stream: MediaStream) {
     const peerConnection = new SimplePeer({
         initiator: true,

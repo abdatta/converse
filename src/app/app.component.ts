@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
   show_secs = false;
 
   // VC properties
-  voice_joined = false;
+  voice_status: 'JOINED' | 'LEFT' | 'JOINING' = 'LEFT';
   private _stream: MediaStream;
   vc_users = new Map<string, {
     username: string;
@@ -309,19 +309,34 @@ export class AppComponent implements OnInit {
     return this._stream = await getStream();
   }
 
-  async joinVC() {
-    if (this.voice_joined) {
-      return;
+  async toggleVC() {
+    switch (this.voice_status) {
+      // Previous status was 'LEFT', now will be 'JOINING'
+      case 'LEFT':
+        this.voice_status = 'JOINING';
+        const stream = await this.getAudioStream();
+        this.chatService.joinVoice(this.user_id, this.username).subscribe(users => {
+          this.vc_users = new Map();
+          users.forEach(user => this.vc_users.set(user.user_id, {
+            username: user.username,
+            peerConnection: user.user_id !== this.user_id ? this.chatService.createPeer(user, stream) : undefined
+          }));
+          this.voice_status = 'JOINED';
+        });
+        break;
+
+     // Previous status was 'JOINED', now will be 'LEAVING'
+      case 'JOINED':
+        this.vc_users.forEach((data) => delete data.peerConnection);
+        this.chatService.leaveVoice();
+        this.voice_status = 'LEFT';
+        break;
+
+      // Ignore these cases
+      case 'JOINING':
+      default:
+        break;
     }
-    const stream = await this.getAudioStream();
-    this.chatService.joinVoice(this.user_id, this.username).subscribe(users => {
-      this.voice_joined = true;
-      this.vc_users = new Map();
-      users.forEach(user => this.vc_users.set(user.user_id, {
-        username: user.username,
-        peerConnection: user.user_id !== this.user_id ? this.chatService.createPeer(user, stream) : undefined
-      }));
-    });
   }
 
   async voiceUserUpdates() {
