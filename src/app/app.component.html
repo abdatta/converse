@@ -45,7 +45,7 @@
             </ng-template>
           </ng-container>
           <ng-template #notConnected>
-            &nbsp;&nbsp;(Not Connected)
+            &nbsp;&nbsp;({{vc_user.value.username !== username ? 'Not Connected' : 'You'}})
           </ng-template>
           
         </div>

@@ -136,15 +136,17 @@ store.on('open', () => {
         });
 
         // Voice events
+        socket.emit('vc-users', Array.from(vc_users.values()));
+
         socket.on('join-vc', (user: User) => {
             console.log('join-vc', user, Array.from(vc_users.values()));
             const existing = getSocketId(user.user_id);
             if (existing.length) {
-                io.emit('user-left', user);
                 existing.forEach(sid => vc_users.delete(sid));
             }
-            socket.emit('vc-users', Array.from(vc_users.values()));
             vc_users.set(socket.id, user);
+            socket.broadcast.emit('vc-users', Array.from(vc_users.values()));
+            socket.emit('joined-vc', Array.from(vc_users.values()));
         });
 
         socket.on('initiate-signal', (data: { peer: User, signal: any }) => {
@@ -153,7 +155,7 @@ store.on('open', () => {
             if (!initiator) { return; }
             console.log('initiate-signal', ({ peer: peer.username, initiator: initiator.username }));
             if (!getSocketId(peer.user_id).length) { return console.log('Peer not in VC!'); }
-            io.to(getSocketId(peer.user_id)[0]).emit('user-joined', { signal, initiator });
+            io.to(getSocketId(peer.user_id)[0]).emit('user-connecting', { signal, initiator });
         });
 
         socket.on('return-signal', (data: { initiator: User, signal: any }) => {
@@ -170,7 +172,7 @@ store.on('open', () => {
             const user = vc_users.get(socket.id);
             console.log('leave-vc', user);
             vc_users.delete(socket.id);
-            io.emit('user-left', user);
+            io.emit('vc-users', Array.from(vc_users.values()));
         };
 
         socket.on('leave-vc', leaveVC);

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { environment } from '../../environments/environment';
-import { fromEvent } from 'rxjs';
+import { fromEvent, Observable } from 'rxjs';
 import { first, share, filter, tap, mapTo } from 'rxjs/operators';
 import { Message, User } from '../models/message.model';
 import * as SimplePeer from 'simple-peer';
@@ -50,18 +50,17 @@ export class ChatService {
   }
 
   // Voice events
+  public getVoiceUsers() {
+    return fromEvent<User[]>(this.socket, 'vc-users');
+  }
 
   public joinVoice(user_id: string, username: string) {
     this.socket.emit('join-vc', { user_id, username });
-    return fromEvent<User[]>(this.socket, 'vc-users').pipe(first());
+    return fromEvent<User[]>(this.socket, 'joined-vc').pipe(first());
   }
 
-  public newVoiceUser() {
-    return fromEvent<{ signal: SignalData, initiator: User }>(this.socket, 'user-joined');
-  }
-
-  public leftVoiceUser() {
-    return fromEvent<User>(this.socket, 'user-left');
+  public newVoiceUserConnecting() {
+    return fromEvent<{ signal: SignalData, initiator: User }>(this.socket, 'user-connecting');
   }
 
   public createPeer(peer: User, stream: MediaStream) {
@@ -119,4 +118,10 @@ export class ChatService {
       onStream: fromEvent<MediaStream>(peerConnection, 'stream').pipe(tap((s) => console.log('stream from new peer', s)))
     };
   }
+}
+
+export interface PeerConnection {
+  connection: SimplePeer.Instance;
+  onConnect: Observable<boolean>;
+  onStream: Observable<MediaStream>;
 }

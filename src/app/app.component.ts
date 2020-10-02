@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ChatService } from './services/chat.service';
+import { ChatService, PeerConnection } from './services/chat.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { OnPageVisibilityChange, AngularPageVisibilityStateEnum } from 'angular-page-visibility';
@@ -43,11 +43,7 @@ export class AppComponent implements OnInit {
   private _stream: MediaStream;
   vc_users = new Map<string, {
     username: string;
-    peerConnection?: {
-      connection: Instance;
-      onConnect: Observable<boolean>;
-      onStream: Observable<MediaStream>;
-    }
+    peerConnection?: PeerConnection
   }>();
 
   constructor(private chatService: ChatService,
@@ -323,13 +319,25 @@ export class AppComponent implements OnInit {
       this.vc_users = new Map();
       users.forEach(user => this.vc_users.set(user.user_id, {
         username: user.username,
-        peerConnection: this.chatService.createPeer(user, stream)
+        peerConnection: user.user_id !== this.user_id ? this.chatService.createPeer(user, stream) : undefined
       }));
     });
   }
 
   async voiceUserUpdates() {
-    this.chatService.newVoiceUser()
+    this.chatService.getVoiceUsers()
+      .subscribe(users => {
+        const updated_vc_users = new Map<string, {username: string; peerConnection?: PeerConnection}>();
+        users.forEach(user => {
+          if (this.vc_users.has(user.user_id)) {
+            updated_vc_users.set(user.user_id, this.vc_users.get(user.user_id));
+          } else {
+            updated_vc_users.set(user.user_id, {username: user.username});
+          }
+        });
+        this.vc_users = updated_vc_users;
+      });
+    this.chatService.newVoiceUserConnecting()
       .subscribe(async ({initiator, signal}) => {
         console.log('user-joined', {initiator, signal});
         const existing = this.vc_users.get(initiator.user_id);
@@ -343,8 +351,5 @@ export class AppComponent implements OnInit {
           peerConnection: this.chatService.addPeer(signal, initiator, stream)
         });
       });
-
-    this.chatService.leftVoiceUser()
-      .subscribe(user => this.vc_users.delete(user.user_id));
   }
 }
