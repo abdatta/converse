@@ -90,9 +90,11 @@ export class ChatService {
 
     return {
       connection: peerConnection,
-      onConnect: fromEvent<void>(peerConnection, 'connect').pipe(tap(() => console.log('Connected to existing peer!')), mapTo(true)),
-      onStream: fromEvent<MediaStream>(peerConnection, 'stream').pipe(tap((s) => console.log('stream from existing peer', s)))
-    };
+      onConnect: fromEvent<void>(peerConnection, 'connect')
+        .pipe(tap(() => console.log('Connected to existing peer!')), mapTo(true), share()),
+      onStream: fromEvent<MediaStream>(peerConnection, 'stream')
+        .pipe(tap((s) => console.log('stream from existing peer', s)), share())
+    } as PeerConnection;
   }
 
   public addPeer(incomingSignal: SignalData, initiator: User, stream: MediaStream) {
@@ -118,9 +120,11 @@ export class ChatService {
 
     return {
       connection: peerConnection,
-      onConnect: fromEvent<void>(peerConnection, 'connect').pipe(tap(() => console.log('Connected to new peer!')), mapTo(true)),
-      onStream: fromEvent<MediaStream>(peerConnection, 'stream').pipe(tap((s) => console.log('stream from new peer', s)))
-    };
+      onConnect: fromEvent<void>(peerConnection, 'connect')
+        .pipe(tap(() => console.log('Connected to new peer!')), mapTo(true), share()),
+      onStream: fromEvent<MediaStream>(peerConnection, 'stream')
+        .pipe(tap((s) => console.log('stream from new peer', s)), share())
+    } as PeerConnection;
   }
 }
 

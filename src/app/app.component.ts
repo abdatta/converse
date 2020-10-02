@@ -9,9 +9,7 @@ import * as moment from 'moment';
 import { LoginComponent } from './login/login.component';
 import { Message } from './models/message.model';
 import { ImageComponent } from './image/image.component';
-import { Instance } from 'simple-peer';
-import { Observable } from 'rxjs';
-import { stringify } from 'querystring';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-root',
@@ -45,6 +43,7 @@ export class AppComponent implements OnInit {
     username: string;
     peerConnection?: PeerConnection
   }>();
+  @ViewChild('vcPanel', { static: true }) vcPanel: MatExpansionPanel;
 
   constructor(private chatService: ChatService,
               private titleService: Title,
@@ -322,6 +321,7 @@ export class AppComponent implements OnInit {
             peerConnection: user.user_id !== this.user_id ? this.chatService.createPeer(user, stream) : undefined
           }));
           this.voice_status = 'JOINED';
+          this.vcPanel.open();
         });
         break;
 
