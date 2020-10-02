@@ -6,7 +6,7 @@
     "start": "concurrently -i \"npm:server -s\" \"npm:client -s\"",
     "client": "ng serve -o",
     "server": "cd server && npm start -s",
-    "build": "ng build",
+    "build": "concurrently \"ng build --prod\" \"cd server && npm run build\"",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

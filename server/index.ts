@@ -2,8 +2,10 @@ import express from 'express';
 import { Server } from 'http';
 import socketIO from 'socket.io';
 import fs from 'fs';
+import path from 'path';
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'converse')));
 
 const server = new Server(app);
 
@@ -15,10 +17,6 @@ const logger = console.log;
 console.log = (...logs) => logger('[' + new Date() + ']', ...logs);
 
 const store = fs.createWriteStream('store.db',  {flags: 'a'});
-
-class TwoWayMap<K, V> extends Map<K, V> {
-    getKey = (v: V) => Array.from(this.entries()).filter(([key, val]) => val === v).map(([key]) => key);
-}
 
 interface User {
     user_id: string;
